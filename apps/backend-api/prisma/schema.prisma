@@ -1,0 +1,182 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Enums for Fixed Roles (Indian Context)
+enum UserRole {
+  ADMIN
+  DOCTOR
+  NURSE
+  RECEPTIONIST
+  PHARMACIST
+  LAB_TECHNICIAN
+  RADIOLOGIST
+  ACCOUNTANT
+  HR_MANAGER
+  PATIENT
+}
+
+// 2. The Master User Table (Staff + Patients)
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String    // Hashed
+  fullName    String
+  phone       String?   // No +1 enforcement, flexible for +91
+  role        UserRole  @default(PATIENT)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relationships (We will expand these later)
+  doctorProfile DoctorProfile?
+  staffProfile  StaffProfile?
+  // patientProfile PatientProfile? // Future
+
+  @@map("users")
+}
+
+// 3. Doctor Specific Details
+model DoctorProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  specialization  String
+  licenseNumber   String   // MCI/NMC Registration Number
+  department      String
+  consultationFee Decimal  @db.Decimal(10, 2) // For GST/Billing precision
+  
+  @@map("doctor_profiles")
+}
+
+// 4. General Staff Details (Nurses, Reception, etc.)
+model StaffProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  employeeId    String   @unique
+  department    String
+  joiningDate   DateTime
+
+  @@map("staff_profiles")
+}
+
+model Patient {
+  id            String   @id @default(uuid())
+  uhid          String   @unique
+  
+  // Demographics
+  fullName      String
+  mobile        String
+  email         String?
+  gender        String
+  dateOfBirth   DateTime
+  age           Int?
+  bloodGroup    String?
+  
+  // Indian Identity
+  aadhaarNumber String?  @unique
+  
+  // Address
+  address       String?
+  city          String?
+  state         String?
+  pincode       String?
+
+  // Medical
+  allergies     String?
+  chronicDiseases String?
+
+  appointments  Appointment[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  invoices Invoice[]
+
+  @@map("patients")
+}
+model Doctor {
+  id              String   @id @default(uuid())
+  name            String
+  specialty       String   // e.g., "Cardiologist"
+  consultationFee Float
+  appointments    Appointment[]
+  createdAt       DateTime @default(now())
+}
+
+model Appointment {
+  id        String   @id @default(uuid())
+  date      DateTime
+  status    String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  type      String   @default("CONSULTATION") // CONSULTATION, FOLLOW_UP
+  
+  // Relations
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+  
+  doctorId  String
+  doctor    Doctor  @relation(fields: [doctorId], references: [id])
+  invoices Invoice?
+  prescription Prescription?
+      createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id            String   @id @default(uuid())
+  invoiceNumber String   @unique // e.g. INV-1001
+  totalAmount   Float
+  status        String   @default("PENDING") // PENDING, PAID, CANCELLED
+  
+  // Relations
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id])
+  
+  // Optional: Link bill to a specific appointment
+  appointmentId String?  @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+
+  items         InvoiceItem[]
+  
+  createdAt     DateTime @default(now())
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  description String  // e.g., "Consultation Fee"
+  amount      Float
+  quantity    Int     @default(1)
+  
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+model Prescription {
+  id            String   @id @default(uuid())
+  diagnosis     String
+  notes         String?  // Advice like "Drink warm water"
+  
+  // Relations
+  appointmentId String   @unique // One prescription per appointment
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  
+  medicines     PrescriptionMedicine[]
+
+  createdAt     DateTime @default(now())
+}
+
+model PrescriptionMedicine {
+  id             String  @id @default(uuid())
+  medicineName   String
+  dosage         String  // e.g., "1-0-1" (Morning-Afternoon-Night)
+  duration       String  // e.g., "5 Days"
+  instruction    String? // e.g., "After food"
+
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+}
