@@ -19,7 +19,7 @@ export default function Home() {
           </nav>
           <div className="ml-auto md:ml-4">
             <Link
-              href="https://sunflag-hms.vercel.app/book"
+              href="/book"
               className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 h-9 px-4 py-2"
             >
               Book Appointment
@@ -48,7 +48,7 @@ export default function Home() {
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Link
                     className="inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-blue-700"
-                    href="https://sunflag-hms.vercel.app/book"
+                    href="/book"
                   >
                     Book Now
                     <ArrowRight className="ml-2 h-4 w-4" />
