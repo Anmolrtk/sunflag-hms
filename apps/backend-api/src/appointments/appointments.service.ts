@@ -33,4 +33,45 @@ export class AppointmentsService {
       orderBy: { date: 'desc' }
     });
   }
+    async createGuestAppointment(data: any) {
+        const { fullName, email, phone, date, reason } = data;
+
+        // 1. Find or Create the Patient
+        let patient = await this.prisma.patient.findFirst({
+          where: { phone: phone }
+        });
+
+        if (!patient) {
+          patient = await this.prisma.patient.create({
+            data: {
+              name: fullName,
+              email: email || "no-email@example.com",
+              phone: phone,
+              gender: "UNKNOWN", // Default for quick booking
+              dob: new Date(),   // Placeholder
+              address: "Not Provided"
+            }
+          });
+        }
+
+        // 2. Find a default Doctor (Assign to the first one found for now)
+        const doctor = await this.prisma.user.findFirst({
+          where: { role: 'DOCTOR' }
+        });
+
+        if (!doctor) {
+          throw new Error("No doctors available in the system");
+        }
+
+        // 3. Create the Appointment
+        return this.prisma.appointment.create({
+          data: {
+            date: new Date(date),
+            reason: reason,
+            status: 'PENDING',
+            patientId: patient.id,
+            doctorId: doctor.id,
+          },
+        });
+      }
 }
