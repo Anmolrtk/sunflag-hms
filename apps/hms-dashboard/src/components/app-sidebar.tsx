@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 
 const sidebarItems = [
   { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-  { icon: Users, label: "Patients", href: "/dashboard/register" }, // or /patients if you have a list
+  { icon: Users, label: "Patients", href: "/dashboard/patients/register" },
   { icon: Calendar, label: "Appointments", href: "/dashboard/appointments" },
   { icon: FileText, label: "Billing", href: "/dashboard/billing" },
   { icon: Pill, label: "Prescriptions", href: "/dashboard/prescriptions" },
