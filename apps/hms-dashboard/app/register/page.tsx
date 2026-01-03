@@ -7,9 +7,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({ email: "", password: "" })
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    name: "",
+  })
   const [error, setError] = useState("")
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,23 +25,21 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
 
       if (res.ok) {
-        const data = await res.json()
-        // SAVE THE TOKEN (Crucial Step!)
-        localStorage.setItem("token", data.access_token)
-        
-        router.push("/dashboard/stats") // Go to dashboard
+        alert("Registration Successful! Please Log In.")
+        router.push("/login") // We will create this next
       } else {
-        setError("Invalid email or password")
+        const data = await res.json()
+        setError(data.message || "Registration failed")
       }
     } catch (err) {
-      setError("Something went wrong.")
+      setError("Network error. Is the backend running?")
     }
   }
 
@@ -45,10 +47,14 @@ export default function LoginPage() {
     <div className="flex h-screen items-center justify-center bg-gray-100">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-center">Hospital Staff Login</CardTitle>
+          <CardTitle className="text-center">Admin Registration</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label>Name</Label>
+              <Input name="name" onChange={handleChange} required />
+            </div>
             <div>
               <Label>Email</Label>
               <Input name="email" type="email" onChange={handleChange} required />
@@ -58,7 +64,7 @@ export default function LoginPage() {
               <Input name="password" type="password" onChange={handleChange} required />
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
-            <Button type="submit" className="w-full">Log In</Button>
+            <Button type="submit" className="w-full">Register Staff Account</Button>
           </form>
         </CardContent>
       </Card>
