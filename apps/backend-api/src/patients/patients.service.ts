@@ -6,33 +6,34 @@ export class PatientsService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: any) {
-    // 1. Log the incoming data to the terminal
+    // 1. Log incoming data for debugging
     console.log("--------------------------------");
     console.log("INCOMING PATIENT DATA:", data);
 
     try {
-      // 2. Generate UHID
+      // 2. Generate UHID (Unique Hospital ID)
       const uhid = `HMS-${Date.now().toString().slice(-6)}`;
 
       // 3. Fix Date Format
-      // If dateOfBirth is missing, this will throw an error
       if (!data.dateOfBirth) {
         throw new Error("Date of Birth is missing!");
       }
-      const dob = new Date(data.dateOfBirth);
+      const dobDate = new Date(data.dateOfBirth);
 
-      // 4. Create Patient in DB
+      // 4. Create Patient in DB (Using correct field names)
       const newPatient = await this.prisma.patient.create({
         data: {
-          fullName: data.fullName,
-          mobile: data.mobile,
+          name: data.fullName,       // Map 'fullName' -> 'name'
+          phone: data.mobile || "",  // Map 'mobile' -> 'phone'
           gender: data.gender,
-          dateOfBirth: dob,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          aadhaarNumber: data.aadhaarNumber || null,
+          dob: dobDate,              // Map 'dateOfBirth' -> 'dob'
+          email: data.email || null, // Optional email
+          
+          // Combine address parts because we removed specific columns for city/state
+          address: `${data.address || ''} ${data.city || ''} ${data.state || ''}`.trim(),
+          
           uhid: uhid,
+          // Removed: aadhaarNumber (Field doesn't exist in new schema)
         },
       });
       
@@ -40,15 +41,15 @@ export class PatientsService {
       return newPatient;
 
     } catch (error) {
-      // 5. Log the specific error if it fails
       console.error("DATABASE ERROR:", error);
-      throw error; // Pass it back to the controller
+      throw error;
     }
   }
 
   async findAll() {
     return this.prisma.patient.findMany({
       orderBy: { createdAt: 'desc' },
+      include: { appointments: true } // Bonus: Include their appointments
     });
   }
 }

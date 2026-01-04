@@ -1,21 +1,24 @@
 import { Module } from '@nestjs/common';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { PrismaModule } from '../prisma/prisma.module';
 import { UsersModule } from '../users/users.module';
-import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
+    PrismaModule,
+    PassportModule,
     UsersModule,
     JwtModule.register({
-      global: true,
-      secret: 'HARDCODED_SECRET_KEY_123',
-      signOptions: { expiresIn: '1d' }, // Token expires in 1 day
+      secret: "super-secret-key", // Use env variable in production
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  providers: [AuthService, JwtAuthGuard],
+  exports: [JwtAuthGuard, JwtModule], // Export these so other modules can use them
 })
 export class AuthModule {}
