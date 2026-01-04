@@ -1,13 +1,20 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-// Note: We do NOT add @UseGuards(JwtAuthGuard) here. This is public.
-@Controller('public/appointments')
-export class PublicAppointmentsController {
+@Controller('appointments')
+export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  findAll() {
+    return this.appointmentsService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() body: any) {
-    return this.appointmentsService.createGuestAppointment(body);
+  create(@Body() createAppointmentDto: any) {
+    return this.appointmentsService.create(createAppointmentDto);
   }
 }

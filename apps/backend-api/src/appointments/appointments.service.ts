@@ -55,7 +55,7 @@ export class AppointmentsService {
         }
 
         // 2. Find a default Doctor (Assign to the first one found for now)
-        const doctor = await this.prisma.user.findFirst({
+        let doctor = await this.prisma.user.findFirst({
           where: { role: 'DOCTOR' }
         });
 
