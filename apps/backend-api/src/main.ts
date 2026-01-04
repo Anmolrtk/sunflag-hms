@@ -7,11 +7,17 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // 1. Enable CORS for deployment
-  app.enableCors({
-    origin: '*', // Allow all domains (Vercel, Localhost, etc.)
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept, Authorization',
-  });
+    app.enableCors({
+        origin: [
+          "https://sunflag-hms.vercel.app",      // Your Dashboard
+          "https://sunflag-website.vercel.app",  // Your New Website (IMPORTANT!)
+          "http://localhost:3000",               // Local testing
+          "http://localhost:3001",
+          "http://localhost:3005"
+        ],
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        credentials: true,
+      });
 
   // 2. Validate incoming data
   app.useGlobalPipes(new ValidationPipe());

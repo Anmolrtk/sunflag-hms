@@ -60,8 +60,14 @@ export class AppointmentsService {
         });
 
         if (!doctor) {
-          throw new Error("No doctors available in the system");
-        }
+              doctor = await this.prisma.user.findFirst({
+                where: { role: 'ADMIN' } // <--- This ensures it works with your account
+              });
+            }
+
+            if (!doctor) {
+              throw new Error("No staff available to take appointment. Please create a user first.");
+            }
 
         // 3. Create the Appointment
         return this.prisma.appointment.create({
