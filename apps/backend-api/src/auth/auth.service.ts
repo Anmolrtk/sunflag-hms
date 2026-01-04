@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -7,30 +7,41 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) {}
 
-  async login(email: string, pass: string) {
-    // 1. Find the user
-    const user = await this.usersService.findOne(email);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // 2. Check if password matches
-    const isMatch = await bcrypt.compare(pass, user.password);
-    if (!isMatch) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // 3. Generate the Token (Payload)
-    const payload = { sub: user.id, email: user.email, role: user.role };
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.usersService.findByEmail(email);
     
+    // 1. If user doesn't exist, return null immediately
+    if (!user) {
+      return null;
+    }
+
+    // 2. CHECK: Plain Text Password (for the seeded 'admin' account)
+    if (user.password === pass) {
+        const { password, ...result } = user;
+        return result;
+    }
+
+    // 3. CHECK: Hashed Password (for real security)
+    const isMatch = await bcrypt.compare(pass, user.password);
+    if (isMatch) {
+      const { password, ...result } = user;
+      return result;
+    }
+
+    return null;
+  }
+
+  async login(user: any) {
+    const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user.id,
-        fullName: user.fullName,
+        name: user.fullName,
+        email: user.email,
         role: user.role
       }
     };

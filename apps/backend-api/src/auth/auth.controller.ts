@@ -1,22 +1,23 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common'; // Import UnauthorizedException
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private usersService: UsersService 
-  ) {}
-
-  @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: Record<string, any>) {
-    return this.authService.login(body.email, body.password);
+  async login(@Body() body: any) {
+    // 1. First, check if the email/password is correct
+    const user = await this.authService.validateUser(body.email, body.password);
+
+    // 2. If no user returned, throw an error
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // 3. If valid, generate the token
+    return this.authService.login(user);
   }
+
+  // Keep your register method if you have one
 }
