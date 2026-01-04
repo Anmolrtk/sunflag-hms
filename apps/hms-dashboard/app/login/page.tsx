@@ -32,7 +32,7 @@ export default function LoginPage() {
         // SAVE THE TOKEN (Crucial Step!)
         localStorage.setItem("token", data.access_token)
         
-        router.push("/dashboard/stats") // Go to dashboard
+        router.push("/dashboard/appointments") // Go to dashboard
       } else {
         setError("Invalid email or password")
       }
