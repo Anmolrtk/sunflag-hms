@@ -20,12 +20,16 @@ export class AppointmentsService {
 
   // 2. Create Appointment (Admin Internal Use)
   async create(data: any) {
+      if (!data.doctorId || data.doctorId === "") {
+            throw new Error("You must select a Doctor for the appointment.");
+          }
+      
     return this.prisma.appointment.create({
       data: {
         date: new Date(data.date),
         reason: data.reason,
         status: 'PENDING',
-        patientId: data.patientId,
+          patientId: Number(data.patientId),
         doctorId: data.doctorId,
       },
     });
