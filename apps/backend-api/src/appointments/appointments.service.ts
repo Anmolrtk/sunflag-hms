@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AppointmentsService {
   constructor(private prisma: PrismaService) {}
 
-  // 1. Get All Appointments (for Admin Dashboard)
+  // 1. Get All Appointments (Used by Admin Dashboard)
   async findAll() {
     return this.prisma.appointment.findMany({
       include: {
@@ -18,28 +18,51 @@ export class AppointmentsService {
     });
   }
 
-  // 2. Create Appointment (Admin Internal Use)
+  // 2. Create Appointment (Used by Admin when manually booking)
   async create(data: any) {
-      if (!data.doctorId || data.doctorId === "") {
-            throw new Error("You must select a Doctor for the appointment.");
-          }
+    let doctorId = data.doctorId;
+
+    // FAILSAFE: If no doctor is selected, find one automatically
+    // This prevents the "You must select a Doctor" crash
+    if (!doctorId || doctorId === "") {
+      console.log("⚠️ No Doctor ID provided. Auto-assigning...");
       
+      // Try to find a real Doctor first
+      const doc = await this.prisma.user.findFirst({ where: { role: 'DOCTOR' } });
+      if (doc) {
+        doctorId = doc.id;
+      } else {
+        // If no Doctor exists, assign to Admin (You)
+        const admin = await this.prisma.user.findFirst({ where: { role: 'ADMIN' } });
+        if (admin) doctorId = admin.id;
+      }
+    }
+
+    // If we still can't find anyone, only then throw error
+    if (!doctorId) {
+      throw new Error("Cannot create appointment: No staff members exist in database.");
+    }
+
     return this.prisma.appointment.create({
       data: {
         date: new Date(data.date),
-        reason: data.reason,
+        reason: data.reason || "Routine Checkup",
         status: 'PENDING',
-          patientId: Number(data.patientId),
-        doctorId: data.doctorId,
+        
+        // FIX: Ensure Patient ID is a Number (Prisma expects Int)
+        patientId: Number(data.patientId),
+        
+        // Use the resolved Doctor ID
+        doctorId: doctorId,
       },
     });
   }
 
-  // 3. Create Guest Appointment (Public Website)
+  // 3. Create Guest Appointment (Used by Public Website)
   async createGuestAppointment(data: any) {
     const { name, phone, date, reason } = data;
 
-    // A. Find or Create Patient
+    // A. Find or Create Patient automatically
     let patient = await this.prisma.patient.findFirst({
       where: { phone: phone }
     });
@@ -63,8 +86,8 @@ export class AppointmentsService {
       doctor = await this.prisma.user.findFirst({ where: { role: 'ADMIN' } });
     }
     
+    // Fallback: Just grab the first user (panic option)
     if (!doctor) {
-      // Fallback: Just grab the first user (e.g., the admin we just seeded)
       doctor = await this.prisma.user.findFirst();
     }
 
@@ -84,7 +107,7 @@ export class AppointmentsService {
     });
   }
 
-  // 4. Update Status (Approve/Cancel Buttons)
+  // 4. Update Status (Used by Approve/Cancel Buttons)
   async updateStatus(id: number, status: string) {
     return this.prisma.appointment.update({
       where: { id: id },

@@ -12,6 +12,9 @@ const sidebarItems = [
   { icon: Calendar, label: "Appointments", href: "/dashboard/appointments" },
   { icon: FileText, label: "Billing", href: "/dashboard/billing" },
   { icon: Pill, label: "Prescriptions", href: "/dashboard/prescriptions" },
+  
+  
+  { title: "Doctors", url: "/dashboard/doctors", icon: User2,},
 ]
 
 export function AppSidebar() {
