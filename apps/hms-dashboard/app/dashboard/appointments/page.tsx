@@ -1,104 +1,147 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Stethoscope } from "lucide-react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Calendar, Clock, User, FileText, Check, X } from "lucide-react"
 
-export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<any[]>([])
+interface Appointment {
+  id: number
+  date: string
+  reason: string
+  status: string
+  patient: {
+    name: string
+    phone: string
+  }
+  doctor: {
+    name: string
+  }
+}
+
+export default function AppointmentsListPage() {
+  const router = useRouter()
+  const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchAppointments()
-  }, [])
-
+  // Fetch Logic
   const fetchAppointments = async () => {
+    const token = localStorage.getItem("token")
+    if (!token) return router.push("/login")
+
     try {
-      const token = localStorage.getItem("token")
-      const res = await fetch("http://127.0.0.1:3000/appointments", {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments`, {
+        headers: { "Authorization": `Bearer ${token}` }
       })
       if (res.ok) {
         const data = await res.json()
         setAppointments(data)
       }
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
     } finally {
       setLoading(false)
     }
   }
 
+  useEffect(() => {
+    fetchAppointments()
+  }, [])
+
+  // Update Logic
+  const handleStatusUpdate = async (id: number, newStatus: string) => {
+    const token = localStorage.getItem("token")
+    if (!token) return
+
+    // Optimistic UI Update (Change it instantly on screen)
+    setAppointments(prev => prev.map(appt =>
+      appt.id === id ? { ...appt, status: newStatus } : appt
+    ))
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (!res.ok) {
+        // Revert if failed
+        alert("Failed to update status")
+        fetchAppointments()
+      }
+    } catch (err) {
+      alert("Network Error")
+    }
+  }
+
+  if (loading) return <div className="p-8">Loading...</div>
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">OPD Appointments</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">Appointments</h1>
+        <Button onClick={fetchAppointments} variant="outline">Refresh</Button>
+      </div>
 
-      <div className="grid gap-4">
-        {loading ? (
-          <p>Loading appointments...</p>
-        ) : appointments.length === 0 ? (
-          <p className="text-slate-500">No appointments scheduled.</p>
-        ) : (
-          appointments.map((apt) => (
-            <Card key={apt.id} className="flex flex-row items-center justify-between p-4">
-              <div className="flex items-center gap-4">
-                {/* Date Box */}
-                <div className="flex flex-col items-center justify-center h-16 w-16 bg-blue-50 rounded-lg text-blue-700">
-                  <span className="text-xs font-bold uppercase">
-                    {new Date(apt.date).toLocaleString('default', { month: 'short' })}
-                  </span>
-                  <span className="text-xl font-bold">
-                    {new Date(apt.date).getDate()}
-                  </span>
-                </div>
-
-                {/* Details */}
-                <div className="space-y-1">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <User className="h-4 w-4 text-slate-500" />
-                    {apt.patient.fullName}
-                  </h3>
-                  <p className="text-sm text-slate-500 flex items-center gap-2">
-                    <Stethoscope className="h-4 w-4" />
-                    {apt.doctor.name} ({apt.doctor.specialty})
-                  </p>
-                </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {appointments.map((appt) => (
+          <Card key={appt.id} className={`border-l-4 shadow-sm ${
+            appt.status === 'CONFIRMED' ? 'border-l-green-500' : 
+            appt.status === 'CANCELLED' ? 'border-l-red-500' : 'border-l-yellow-500'
+          }`}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex justify-between items-start">
+                <span>{appt.patient?.name || "Guest"}</span>
+                <span className={`text-xs px-2 py-1 rounded-full font-bold ${
+                  appt.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' : 
+                  appt.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {appt.status}
+                </span>
+              </CardTitle>
+              <p className="text-sm text-gray-500">{appt.patient?.phone}</p>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex items-center text-gray-600">
+                <Calendar className="mr-2 h-4 w-4" />
+                {new Date(appt.date).toLocaleDateString()}
               </div>
-
-              {/* Status & Time */}
-              <div className="text-right space-y-2">
-                <Badge variant={apt.status === "PENDING" ? "secondary" : "default"}>
-                  {apt.status}
-                </Badge>
-                <div className="text-sm text-slate-500 flex items-center justify-end gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {new Date(apt.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
-                
-                                     <div className="ml-4 pl-4 border-l flex gap-2"> {/* Added flex gap-2 */}
-                                                     
-                                                     {/* --- NEW RX BUTTON --- */}
-                                                     <Link href={`/dashboard/prescriptions/create?patientId=${apt.patientId}&appointmentId=${apt.id}&name=${apt.patient.fullName}`}>
-                                                        <Button size="sm" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                                                          Rx
-                                                        </Button>
-                                                     </Link>
-                                                     {/* --------------------- */}
-
-                                                     <Link href={`/dashboard/billing/create?patientId=${apt.patientId}&appointmentId=${apt.id}&name=${apt.patient.fullName}`}>
-                                                        <Button size="sm" variant="default" className="bg-green-600 hover:bg-green-700">
-                                                          Bill
-                                                        </Button>
-                                                     </Link>
-                                                   </div>
-                                     
+              <div className="flex items-center text-gray-600">
+                <User className="mr-2 h-4 w-4" />
+                Dr. {appt.doctor?.fullName || appt.doctor?.name || "Unassigned"}
               </div>
-            </Card>
-          ))
-        )}
+              <div className="pt-2 border-t mt-2 text-gray-700 italic">
+                "{appt.reason}"
+              </div>
+            </CardContent>
+            
+            {/* Action Buttons - Only show if PENDING */}
+            {appt.status === 'PENDING' && (
+              <CardFooter className="pt-0 flex gap-2">
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  size="sm"
+                  onClick={() => handleStatusUpdate(appt.id, "CONFIRMED")}
+                >
+                  <Check className="w-4 h-4 mr-1" /> Approve
+                </Button>
+                <Button
+                  className="flex-1"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleStatusUpdate(appt.id, "CANCELLED")}
+                >
+                  <X className="w-4 h-4 mr-1" /> Cancel
+                </Button>
+              </CardFooter>
+            )}
+          </Card>
+        ))}
       </div>
     </div>
   )

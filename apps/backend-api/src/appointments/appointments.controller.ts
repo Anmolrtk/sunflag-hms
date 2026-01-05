@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -16,5 +16,12 @@ export class AppointmentsController {
   @Post()
   create(@Body() createAppointmentDto: any) {
     return this.appointmentsService.create(createAppointmentDto);
+  }
+
+  // This is the new button logic!
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
+    return this.appointmentsService.updateStatus(Number(id), status);
   }
 }
