@@ -8,19 +8,26 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-
+    constructor(private readonly usersService: UsersService) {}
+    
     // 1. Get List of Doctors
-      @UseGuards(JwtAuthGuard)
-      @Get('doctors')
-      async getDoctors() {
+    @UseGuards(JwtAuthGuard)
+    @Get('doctors')
+    async getDoctors() {
+        return this.usersService.findAllDoctors();
+    }
+    
+    // 2. Add a New Doctor
+    @UseGuards(JwtAuthGuard)
+    @Post()
+    async create(@Body() body: any) {
+        return this.usersService.createUser(body);
+    }
+    // 3. Public Endpoint: Get Doctors for Website (No Login Required)
+      @Get('public/doctors')
+      async getPublicDoctors() {
         return this.usersService.findAllDoctors();
       }
+    
+}
 
-      // 2. Add a New Doctor
-      @UseGuards(JwtAuthGuard)
-      @Post()
-      async create(@Body() body: any) {
-        return this.usersService.createUser(body);
-      }
-    }
