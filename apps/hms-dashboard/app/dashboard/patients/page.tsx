@@ -1,118 +1,99 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Plus, Search } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Users, Search, Phone, Calendar } from "lucide-react"
 
-// Define what a Patient looks like
-interface Patient {
-  id: string
-  uhid: string
-  fullName: string
-  mobile: string
-  gender: string
-  city: string
-  createdAt: string
-}
-
-export default function PatientListPage() {
-  const [patients, setPatients] = useState<Patient[]>([])
+export default function PatientsPage() {
+  const [patients, setPatients] = useState([])
+  const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
 
+  // 1. Fetch Data
   useEffect(() => {
+    const fetchPatients = async () => {
+      const token = localStorage.getItem("token")
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/patients`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        })
+        if (res.ok) {
+          setPatients(await res.json())
+        }
+      } catch (err) {
+        console.error("Failed to load patients", err)
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchPatients()
   }, [])
 
-  const fetchPatients = async () => {
-    try {
-      const token = localStorage.getItem("token")
-      // Use 127.0.0.1 since it worked for you
-      const res = await fetch("http://127.0.0.1:3000/patients", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      
-      if (res.ok) {
-        const data = await res.json()
-        setPatients(data)
-      } else {
-        console.error("Failed to fetch patients")
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // 2. Search Filter Logic
+  const filteredPatients = patients.filter((p: any) =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.phone.includes(search)
+  )
+
+  if (loading) return <div className="p-8">Loading patient registry...</div>
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Patient Records</h1>
-          <p className="text-slate-500">Manage and view all registered patients.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Patient Registry</h1>
+        <div className="relative w-72">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search by name or phone..."
+            className="pl-8"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
-        <Link href="/dashboard/patients/register">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Register New Patient
-          </Button>
-        </Link>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex items-center space-x-2 bg-white p-4 rounded-lg border shadow-sm">
-        <Search className="h-5 w-5 text-slate-400" />
-        <Input 
-          placeholder="Search by Name, Mobile or UHID..." 
-          className="border-0 focus-visible:ring-0" 
-        />
-      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredPatients.map((patient: any) => (
+          <Card key={patient.id} className="hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-medium">
+                {patient.name}
+              </CardTitle>
+              <Users className="h-4 w-4 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center text-sm text-gray-600">
+                  <Phone className="mr-2 h-4 w-4" />
+                  {patient.phone}
+                </div>
+                
+                <div className="pt-2 border-t">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">RECENT ACTIVITY</p>
+                  {patient.appointments?.length > 0 ? (
+                    <div className="text-sm">
+                      <div className="flex items-center text-blue-600 mb-1">
+                        <Calendar className="mr-2 h-3 w-3" />
+                        Last Visit: {new Date(patient.appointments[0].date).toLocaleDateString()}
+                      </div>
+                      <p className="text-gray-500 text-xs pl-5">
+                        "{patient.appointments[0].reason}"
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">No appointments yet.</p>
+                  )}
+                </div>
 
-      {/* The Table */}
-      <div className="border rounded-lg bg-white overflow-hidden shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 border-b">
-            <tr>
-              <th className="p-4 font-medium text-slate-600">UHID</th>
-              <th className="p-4 font-medium text-slate-600">Full Name</th>
-              <th className="p-4 font-medium text-slate-600">Gender</th>
-              <th className="p-4 font-medium text-slate-600">Mobile</th>
-              <th className="p-4 font-medium text-slate-600">City</th>
-              <th className="p-4 font-medium text-slate-600">Registered On</th>
-          <th>Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-                      {loading ? (
-                        <tr><td colSpan={7} className="p-8 text-center text-slate-500">Loading records...</td></tr>
-                      ) : patients.length === 0 ? (
-                        <tr><td colSpan={7} className="p-8 text-center text-slate-500">No patients found.</td></tr>
-                      ) : (
-                        patients.map((patient) => (
-                          <tr key={patient.id} className="hover:bg-slate-50 transition-colors">
-                            <td className="p-4 font-mono text-blue-600 font-medium">{patient.uhid}</td>
-                            <td className="p-4 font-medium text-slate-900">{patient.fullName}</td>
-                            <td className="p-4 text-slate-600">{patient.gender}</td>
-                            <td className="p-4 text-slate-600">{patient.mobile}</td>
-                            <td className="p-4 text-slate-600">{patient.city || "-"}</td>
-                            <td className="p-4 text-slate-500">
-                              {new Date(patient.createdAt).toLocaleDateString()}
-                            </td>
-                            {/* NEW COLUMN: ACTIONS */}
-                            <td className="p-4">
-                              <Link href={`/dashboard/appointments/book?patientId=${patient.id}&name=${patient.fullName}`}>
-                                <Button size="sm" variant="outline">Book OPD</Button>
-                              </Link>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-        </table>
+                <div className="flex justify-between items-center pt-2 text-xs text-gray-400">
+                  <span>ID: #{patient.id}</span>
+                  <span>Total Visits: {patient.appointments?.length || 0}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   )
