@@ -4,103 +4,108 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertCircle, Loader2 } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Lock, Mail, AlertCircle } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [formData, setFormData] = useState({ email: "", password: "" })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
     try {
-      // 1. Call your NestJS Backend
-      // Note: In local dev, use http://localhost:3000. In prod, use ENV vars.
-      const res = await fetch("http://localhost:3000/auth/login", {
+      // FIX: Use the full URL to your backend (Port 3001)
+      const res = await fetch("http://localhost:3001/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(formData),
       })
+
+      // Check if response is JSON (Prevents the "<" error)
+      const contentType = res.headers.get("content-type")
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned HTML instead of JSON. Is the Backend running on port 3001?")
+      }
 
       const data = await res.json()
 
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed")
+      if (res.ok) {
+        // Save token and user info
+        localStorage.setItem("token", data.access_token)
+        localStorage.setItem("user", JSON.stringify(data.user))
+        
+        // Redirect to Dashboard
+        router.push("/dashboard")
+      } else {
+        setError(data.message || "Login failed")
       }
-
-      // 2. Store the token (Simple method for now)
-      localStorage.setItem("token", data.access_token)
-      localStorage.setItem("user", JSON.stringify(data.user))
-
-      // 3. Redirect to Dashboard
-      router.push("/dashboard")
-      
     } catch (err: any) {
-      setError(err.message)
+      console.error("Login Error:", err)
+      setError(err.message || "Something went wrong. Check console.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="flex h-screen items-center justify-center bg-slate-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">HMS Login</CardTitle>
-          <CardDescription className="text-center">
-            Enter your credentials to access the hospital system
-          </CardDescription>
+    <div className="min-h-screen flex items-center justify-center bg-slate-100">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="text-center space-y-2">
+          <div className="mx-auto bg-blue-600 w-12 h-12 rounded-lg flex items-center justify-center mb-2">
+            <Lock className="h-6 w-6 text-white" />
+          </div>
+          <CardTitle className="text-2xl font-bold text-slate-900">Staff Login</CardTitle>
+          <p className="text-slate-500 text-sm">Sunflag Global Hospital Management</p>
         </CardHeader>
-        <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
             {error && (
-              <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded flex items-center gap-2">
+              <div className="bg-red-50 text-red-600 text-sm p-3 rounded-md flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
                 {error}
               </div>
             )}
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="doctor@hospital.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <label className="text-sm font-medium">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                <Input
+                  type="email"
+                  placeholder="admin@sunflag.com"
+                  className="pl-9"
+                  required
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
+              </div>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <label className="text-sm font-medium">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  className="pl-9"
+                  required
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                />
+              </div>
             </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logging in...
-                </>
-              ) : (
-                "Sign In"
-              )}
+
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
-          </CardFooter>
-        </form>
+
+          </form>
+        </CardContent>
       </Card>
     </div>
   )

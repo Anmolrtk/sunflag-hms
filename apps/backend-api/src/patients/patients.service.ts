@@ -5,31 +5,45 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PatientsService {
   constructor(private prisma: PrismaService) {}
 
-  // 1. Create Patient (Used by Appointment logic)
+  // Create Patient (Actually creating a User)
   async create(data: any) {
-    return this.prisma.patient.create({ data });
-  }
-
-  // 2. Get All Patients (with Appointment History)
-  async findAll() {
-    return this.prisma.patient.findMany({
-      include: {
-        appointments: {
-          orderBy: { date: 'desc' }, // Newest first
-          take: 5 // Just get the last 5 to keep it light
+    return this.prisma.user.create({
+      data: {
+        email: data.email || `patient-${Date.now()}@hospital.com`, // Fake email if none provided
+        password: data.password || "123456", // Default password
+        fullName: data.fullName,
+        phone: data.phone,
+        role: 'PATIENT',
+        patientProfile: {
+          create: {
+            dob: data.dob || "",
+            gender: data.gender || "Other",
+            bloodGroup: data.bloodGroup || "",
+            address: data.address || "",
+            medicalHistory: data.medicalHistory || ""
+          }
         }
-      },
-      orderBy: {
-        createdAt: 'desc' // Newest patients first
       }
     });
   }
 
-  // 3. Find One
-  async findOne(id: number) {
-    return this.prisma.patient.findUnique({
-      where: { id },
-      include: { appointments: true }
+  async findAll() {
+    return this.prisma.user.findMany({
+      where: { role: 'PATIENT' },
+      include: { patientProfile: true }
     });
   }
+
+    async findOne(id: string) {
+        return this.prisma.prescription.findUnique({
+          where: { id },
+          include: {
+            doctor: true,
+            appointment: {
+                include: { patient: true }
+            }
+          }
+          // Removed 'medicines: true' because it is a regular column, not a relation.
+        });
+      }
 }

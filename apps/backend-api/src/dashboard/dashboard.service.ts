@@ -6,47 +6,37 @@ export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
   async getStats() {
-    // 1. Count Total Patients
-    const totalPatients = await this.prisma.patient.count();
-
-    // 2. Count Doctors
-    const totalDoctors = await this.prisma.user.count({
-      where: { role: 'DOCTOR' }
+    // 1. Count Patients (Users with role PATIENT)
+    const totalPatients = await this.prisma.user.count({
+      where: { role: 'PATIENT' }
     });
 
-    // 3. Count Appointments (Today)
+    // 2. Count Appointments
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
+    today.setHours(0,0,0,0);
+    
     const appointmentsToday = await this.prisma.appointment.count({
       where: {
-        date: {
-          gte: today,
-          lt: tomorrow
-        }
+        date: { gte: today }
       }
     });
 
-    // 4. Calculate Total Revenue
+    // 3. Revenue Stats (Fix: Use 'amount', not 'totalAmount')
     const revenue = await this.prisma.invoice.aggregate({
-      _sum: { totalAmount: true },
-      where: { status: 'PAID' } // Only count actual money received
+      _sum: { amount: true },
+      where: { status: 'PAID' }
     });
 
-    // 5. Pending Bills Amount
     const pending = await this.prisma.invoice.aggregate({
-      _sum: { totalAmount: true },
+      _sum: { amount: true },
       where: { status: 'PENDING' }
     });
 
     return {
       totalPatients,
-      totalDoctors,
       appointmentsToday,
-      totalRevenue: revenue._sum.totalAmount || 0,
-      pendingRevenue: pending._sum.totalAmount || 0
+      totalRevenue: revenue._sum.amount || 0,
+      pendingRevenue: pending._sum.amount || 0
     };
   }
 }

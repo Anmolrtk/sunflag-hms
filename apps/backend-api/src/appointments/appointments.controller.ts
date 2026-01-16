@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -6,22 +6,31 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  findAll() {
-    return this.appointmentsService.findAll();
-  }
-
+  // 1. Create (Registered User)
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createAppointmentDto: any) {
-    return this.appointmentsService.create(createAppointmentDto);
+  create(@Body() body: any, @Request() req) {
+    return this.appointmentsService.create(body, req.user.userId);
   }
 
-  // This is the new button logic!
+  // 2. Get All (Protected & Filtered)
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  findAll(@Request() req) {
+    return this.appointmentsService.findAll(req.user);
+  }
+
+  // 3. Update Status
   @UseGuards(JwtAuthGuard)
   @Patch(':id/status')
-  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
-    return this.appointmentsService.updateStatus(Number(id), status);
+  updateStatus(@Param('id') id: string, @Body('status') status: string) {
+    return this.appointmentsService.updateStatus(id, status);
+  }
+  
+  // 4. Delete
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.appointmentsService.remove(id);
   }
 }

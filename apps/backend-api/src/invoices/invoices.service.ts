@@ -5,43 +5,45 @@ import { PrismaService } from '../prisma/prisma.service';
 export class InvoicesService {
   constructor(private prisma: PrismaService) {}
 
+  // 1. Create Invoice
   async create(data: any) {
-    console.log("Generating Invoice:", data);
-    
-    // Generate Invoice Number (INV-XXXXXX)
-    const invNum = `INV-${Date.now().toString().slice(-6)}`;
-
-    // Prepare Appointment ID (handle null/undefined)
-    const appointmentLink = (data.appointmentId && data.appointmentId !== "undefined")
-      ? data.appointmentId
-      : null;
-
-    // Calculate Total
-    const total = data.items.reduce((sum, item) => sum + (Number(item.amount) * Number(item.quantity)), 0);
-
     return this.prisma.invoice.create({
       data: {
-        invoiceNumber: invNum,
+        invoiceNumber: `INV-${Date.now()}`, // Auto-generate ID
+        amount: data.amount,
+        status: 'PENDING',
         patientId: data.patientId,
-        appointmentId: appointmentLink,
-        totalAmount: total,
-        status: "PENDING",
+        // Create line items linked to this invoice
         items: {
-          create: data.items.map((item) => ({
-            description: item.description,
-            amount: Number(item.amount),
-            quantity: Number(item.quantity) || 1,
-          })),
-        },
+            create: data.items // Expecting array: [{ description, quantity, price }]
+        }
       },
-      include: { items: true, patient: true },
+      include: {
+        items: true
+      }
     });
   }
 
+  // 2. Find All Invoices
   async findAll() {
     return this.prisma.invoice.findMany({
-      include: { patient: true, items: true },
-      orderBy: { createdAt: 'desc' },
+      include: {
+        patient: true,
+        items: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  // 3. Find One Invoice
+  async findOne(id: string) {
+    return this.prisma.invoice.findUnique({
+      where: { id },
+      include: {
+        patient: true,
+        items: true,
+        appointment: true
+      }
     });
   }
 }

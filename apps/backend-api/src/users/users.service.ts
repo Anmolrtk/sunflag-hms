@@ -6,60 +6,111 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  // 1. Find a user by Email (Used for Login)
+  // 1. Find User by Email
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
-      where: { email },
+      where: { email }
     });
   }
 
-  // 2. Find a user by Email (Alternative name often used)
-  async findOne(email: string) {
-    return this.findByEmail(email);
+  // 2. Find All Users (Includes Profiles)
+  async findAll() {
+    return this.prisma.user.findMany({
+      include: { doctorProfile: true, patientProfile: true }
+    });
   }
 
-  // 3. Create a New User (General)
-  async create(data: any) {
-    return this.createUser(data);
+  // 3. Find All Doctors (Public)
+  async findAllDoctors() {
+    return this.prisma.user.findMany({
+      where: { role: 'DOCTOR' },
+      select: {
+        id: true,
+        fullName: true,
+        doctorProfile: {
+          select: {
+            specialization: true,
+            department: true,
+            consultationFee: true
+          }
+        }
+      }
+    });
   }
 
-  // 4. Create User with Password Hashing (The Real Logic)
+  // 4. Create User (Handles Profiles Automatically)
   async createUser(data: any) {
-    // If password exists, hash it. If not, use a default (for testing only)
-    const rawPassword = data.password || "password123";
-    const hashedPassword = await bcrypt.hash(rawPassword, 10);
-    
+    const hashedPassword = await bcrypt.hash(data.password, 10);
     return this.prisma.user.create({
       data: {
         email: data.email,
         password: hashedPassword,
-        fullName: data.name || data.fullName, // Handle both naming conventions
+        fullName: data.fullName,
         phone: data.phone,
         role: data.role || 'PATIENT',
-        
-        // Optional: Create Doctor Profile if role is DOCTOR
         doctorProfile: data.role === 'DOCTOR' ? {
-          create: {
-            specialization: data.specialization || "General",
-            licenseNumber: "TBD",
-            department: "General",
-            consultationFee: 500
+           create: {
+             specialization: data.specialization || 'General',
+             department: data.department || 'General',
+             consultationFee: data.consultationFee ? Number(data.consultationFee) : 500
+           }
+        } : undefined
+      }
+    });
+  }
+
+  // 5. Update User (Fixes "Unknown argument department" error)
+  async update(id: string, data: any) {
+    // Separate User fields from Profile fields
+    const { department, specialization, consultationFee, ...userFields } = data;
+
+    // Hash password if it's being updated
+    if (userFields.password) {
+      userFields.password = await bcrypt.hash(userFields.password, 10);
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        ...userFields, // Update standard fields (name, email, phone)
+        
+        // Nested Update: Only update profile if role is DOCTOR
+        doctorProfile: (department || specialization) ? {
+          upsert: {
+            create: {
+              department: department || 'General',
+              specialization: specialization || 'General',
+              consultationFee: Number(consultationFee) || 500
+            },
+            update: {
+              department: department,
+              specialization: specialization,
+              consultationFee: consultationFee ? Number(consultationFee) : undefined
+            }
           }
         } : undefined
-      },
+      }
     });
   }
 
-  // 5. Get All Users
-  async findAll() {
-    return this.prisma.user.findMany();
-  }
-
-  // 6. Get All Doctors (For the Dropdown/List)
-  async findAllDoctors() {
-    return this.prisma.user.findMany({
-      where: { role: 'DOCTOR' },
-      include: { doctorProfile: true }
+  // 6. Delete User (Fixes "Foreign key constraint" error)
+  async remove(id: string) {
+    // Step A: Delete related Appointments first
+    await this.prisma.appointment.deleteMany({
+      where: { OR: [{ doctorId: id }, { patientId: id }] }
     });
+
+    // Step B: Delete Doctor Profile if exists
+    await this.prisma.doctorProfile.deleteMany({
+      where: { userId: id }
+    });
+
+    // Step C: Delete Patient Profile if exists
+    await this.prisma.patientProfile.deleteMany({
+      where: { userId: id }
+    });
+
+    // Step D: Finally, delete the User
+    return this.prisma.user.delete({ where: { id } });
   }
 }

@@ -7,162 +7,111 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. Enums
-enum UserRole {
-  ADMIN
-  DOCTOR
-  NURSE
-  RECEPTIONIST
-  PHARMACIST
-  PATIENT
-}
-
-// 2. The Master User Table (Doctors/Staff Logins)
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  password    String
-  fullName    String
-  phone       String?
-  role        UserRole  @default(PATIENT)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  phone     String?
+  role      String   @default("PATIENT") // DOCTOR, NURSE, ADMIN, PATIENT
+  image     String?
+  createdAt DateTime @default(now())
 
-  // Relationships
-  doctorProfile DoctorProfile?
-  staffProfile  StaffProfile?
-  
-  // Doctors have appointments
-  appointmentsAsDoctor Appointment[]
-  
-  @@map("users")
+  // Profiles
+  doctorProfile  DoctorProfile?
+  patientProfile PatientProfile?
+
+  // Relations
+  appointmentsAsDoctor  Appointment[]  @relation("DoctorAppointments")
+  appointmentsAsPatient Appointment[]  @relation("PatientAppointments")
+  prescriptionsWritten  Prescription[]
+  invoices              Invoice[]
 }
 
-// 3. Doctor Specific Details
 model DoctorProfile {
-  id              String   @id @default(uuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id])
+  id              String  @id @default(uuid())
   specialization  String
-  licenseNumber   String
+  licenseNumber   String?
   department      String
-  consultationFee Decimal  @db.Decimal(10, 2)
-  
-  @@map("doctor_profiles")
+  consultationFee Decimal @db.Decimal(10, 2)
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// 4. Staff Details
-model StaffProfile {
-  id            String   @id @default(uuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id])
-  employeeId    String   @unique
-  department    String
-  joiningDate   DateTime
+model PatientProfile {
+  id             String  @id @default(uuid())
+  dob            String
+  gender         String
+  bloodGroup     String?
+  address        String?
+  medicalHistory String?
 
-  @@map("staff_profiles")
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// 5. Patients (The Sick People)
-model Patient {
-  id            Int      @id @default(autoincrement()) // ID is a Number
-  uhid          String?  @unique @default(uuid()) // Auto-generate UHID
-  
-  name          String
-  phone         String   @default("")
-  email         String?
-  gender        String
-  dob           DateTime // Renamed from dateOfBirth to match your code
-  address       String?
-  
-  // Medical Info
-  allergies     String?
-  chronicDiseases String?
-
-  appointments  Appointment[]
-  invoices      Invoice[]
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  @@map("patients")
-}
-
-// 6. Appointments
 model Appointment {
-  id        Int      @id @default(autoincrement()) // ID is a Number
-  reason    String   @default("Checkup")
-  date      DateTime
-  status    String   @default("PENDING")
-  type      String   @default("CONSULTATION")
-  
-  // RELATION FIX: Link to Patient (Int ID)
-  patientId Int
-  patient   Patient @relation(fields: [patientId], references: [id])
-  
-  // RELATION FIX: Link to User (String ID) - Because Doctors are Users
-  doctorId  String
-  doctor    User    @relation(fields: [doctorId], references: [id])
-  
-  invoices     Invoice?
+  id           String   @id @default(uuid())
+  patientName  String   // Fallback for guests
+  patientPhone String   // Fallback for guests
+  date         DateTime
+  reason       String?
+  status       String   @default("PENDING")
+
+  // Link to Doctor
+  doctorId String
+  doctor   User   @relation("DoctorAppointments", fields: [doctorId], references: [id])
+
+  // Link to Patient (Optional - for Registered Users)
+  patientId String?
+  patient   User?   @relation("PatientAppointments", fields: [patientId], references: [id])
+
+  // One-to-One Links
   prescription Prescription?
-  
+  invoice      Invoice?
+
   createdAt DateTime @default(now())
 }
 
-// 7. Invoices
+model Prescription {
+  id        String   @id @default(uuid())
+  medicines String   @db.Text // JSON String of medicines
+  notes     String?
+
+  doctorId String
+  doctor   User   @relation(fields: [doctorId], references: [id])
+
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
 model Invoice {
   id            String   @id @default(uuid())
-  invoiceNumber String   @unique @default(uuid())
-  totalAmount   Float
-  status        String   @default("PENDING")
-  
-  // RELATION FIX: Link to Patient (Int ID)
-  patientId     Int
-  patient       Patient  @relation(fields: [patientId], references: [id])
-  
-  // RELATION FIX: Link to Appointment (Int ID)
-  appointmentId Int?     @unique
+  invoiceNumber String   @unique // e.g. INV-1001
+  amount        Decimal  @db.Decimal(10, 2)
+  status        String   @default("PENDING") // PAID, PENDING, CANCELLED
+  paymentMode   String?
+
+  patientId String
+  patient   User   @relation(fields: [patientId], references: [id])
+
+  appointmentId String?      @unique
   appointment   Appointment? @relation(fields: [appointmentId], references: [id])
 
-  items         InvoiceItem[]
-  
-  createdAt     DateTime @default(now())
+  items InvoiceItem[]
+
+  createdAt DateTime @default(now())
 }
 
 model InvoiceItem {
   id          String  @id @default(uuid())
   description String
-  amount      Float
-  quantity    Int     @default(1)
-  
-  invoiceId   String
-  invoice     Invoice @relation(fields: [invoiceId], references: [id])
-}
+  quantity    Int
+  price       Decimal @db.Decimal(10, 2)
 
-// 8. Prescriptions
-model Prescription {
-  id            String   @id @default(uuid())
-  diagnosis     String
-  notes         String?
-  
-  // RELATION FIX: Link to Appointment (Int ID)
-  appointmentId Int   @unique
-  appointment   Appointment @relation(fields: [appointmentId], references: [id])
-  
-  medicines     PrescriptionMedicine[]
-
-  createdAt     DateTime @default(now())
-}
-
-model PrescriptionMedicine {
-  id             String  @id @default(uuid())
-  medicineName   String
-  dosage         String
-  duration       String
-  instruction    String?
-
-  prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }

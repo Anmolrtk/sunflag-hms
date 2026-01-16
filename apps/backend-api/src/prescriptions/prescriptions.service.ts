@@ -5,48 +5,39 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PrescriptionsService {
   constructor(private prisma: PrismaService) {}
 
+  // 1. Create Prescription
   async create(data: any) {
-    console.log("Saving Prescription:", data);
-
     return this.prisma.prescription.create({
       data: {
-        appointmentId: data.appointmentId,
-        diagnosis: data.diagnosis,
+        medicines: JSON.stringify(data.medicines), // Store array as String
         notes: data.notes,
-        medicines: {
-          create: data.medicines.map((med) => ({
-            medicineName: med.name,
-            dosage: med.dosage,
-            duration: med.duration,
-            instruction: med.instruction
-          }))
-        }
-      },
-      include: { medicines: true }
+        doctorId: data.doctorId,
+        appointmentId: data.appointmentId
+      }
     });
   }
 
-    async findAll() {
-        return this.prisma.prescription.findMany({
-          include: {
-            medicines: true,
-            appointment: {
-              include: { patient: true } // <--- NOW we get the Patient details too
-            }
-          },
-          orderBy: { createdAt: 'desc' }
-        });
+  // 2. Find All
+  async findAll() {
+    return this.prisma.prescription.findMany({
+      include: {
+        appointment: { include: { patient: true } },
+        doctor: true
       }
-      
-      async findOne(id: string) {
-        return this.prisma.prescription.findUnique({
-          where: { id },
-          include: {
-            medicines: true,
-            appointment: {
-              include: { patient: true, doctor: true } // Get Doctor details too for the letterhead
-            }
-          }
-        });
+    });
+  }
+
+  // 3. Find One
+  async findOne(id: string) {
+    return this.prisma.prescription.findUnique({
+      where: { id },
+      include: {
+        doctor: true,
+        appointment: {
+            include: { patient: true }
+        }
       }
+      // Note: 'medicines' column is fetched automatically. No need to 'include' it.
+    });
+  }
 }

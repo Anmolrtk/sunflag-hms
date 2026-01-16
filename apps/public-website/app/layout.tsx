@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google"; // Using Google Font instead
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header"; // <--- Import this
+import { SiteHeader } from "@/components/site-header";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sunflag Hospital",
+  title: "Sunflag Global Hospital",
   description: "Advanced Healthcare Platform",
 };
 
@@ -24,10 +17,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* ADD HEADER HERE */}
+      <body className={inter.className}>
         <SiteHeader />
-        
         <main className="min-h-screen bg-slate-50">
           {children}
         </main>

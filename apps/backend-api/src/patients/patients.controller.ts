@@ -15,7 +15,7 @@ export class PatientsController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.patientsService.findOne(Number(id));
+    return this.patientsService.findOne(id);
   }
   
   // Keep create if you have it, or let AppointmentsService handle creation

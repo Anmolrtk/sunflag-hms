@@ -1,28 +1,34 @@
+import 'dotenv/config'; // Keep this at the top!
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config'; 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaModule } from './prisma/prisma.module';
-import { UsersModule } from './users/users.module';
+import { PrismaService } from './prisma/prisma.service';
+
+// Auth & Users
 import { AuthModule } from './auth/auth.module';
-import { PatientsModule } from './patients/patients.module';
-import { AppointmentsModule } from './appointments/appointments.module';
-import { InvoicesModule } from './invoices/invoices.module';
-import { PrescriptionsModule } from './prescriptions/prescriptions.module';
+import { UsersController } from './users/users.controller';
+import { UsersService } from './users/users.service';
+
+// Appointments
+import { AppointmentsController } from './appointments/appointments.controller';
+import { PublicAppointmentsController } from './appointments/public-appointments.controller'; // <--- THIS WAS MISSING
+import { AppointmentsService } from './appointments/appointments.service';
+import { NotificationsService } from './appointments/notifications.service';
 
 @Module({
-  imports: [
-    
-    ConfigModule.forRoot({ isGlobal: true }),
-    PrismaModule,
-    UsersModule,
-    AuthModule,
-    PatientsModule,
-    AppointmentsModule,
-    InvoicesModule,
-    PrescriptionsModule,
+  imports: [AuthModule],
+  controllers: [
+    AppController,
+    UsersController,
+    AppointmentsController,
+    PublicAppointmentsController // <--- Ensure it's here
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    PrismaService,
+    UsersService,
+    AppointmentsService,
+    NotificationsService
+  ],
 })
 export class AppModule {}
