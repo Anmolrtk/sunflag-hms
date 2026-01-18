@@ -17,7 +17,7 @@ export default function PrescriptionList() {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const res = await fetch("http://127.0.0.1:3000/prescriptions", {
+      const res = await fetch("http://localhost:3001/prescriptions", {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (res.ok) {

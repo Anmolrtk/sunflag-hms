@@ -9,7 +9,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
   // Enable CORS
-  app.enableCors();
+    app.enableCors({
+        origin: '*', // Allow Vercel/Public access
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      });
 
   // Create Default Admin if not exists
   const prisma = app.get(PrismaService);

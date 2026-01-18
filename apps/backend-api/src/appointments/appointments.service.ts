@@ -74,25 +74,12 @@ export class AppointmentsService {
   }
 
   // 4. Update Status & Send WhatsApp
-  async updateStatus(id: string, status: string) {
-    const appointment = await this.prisma.appointment.update({
-      where: { id },
-      data: { status },
-      include: { doctor: true }
-    });
-
-    // If Confirmed, Send WhatsApp
-    if (status === 'CONFIRMED') {
-      await this.notifications.sendWhatsAppConfirmation(
-        appointment.patientName,
-        appointment.patientPhone,
-        appointment.date,
-        appointment.doctor?.fullName || "Doctor"
-      );
-    }
-
-    return appointment;
-  }
+    async updateStatus(id: string, status: string) {
+        return this.prisma.appointment.update({
+          where: { id },
+          data: { status },
+        });
+      }
   
   async remove(id: string) {
     return this.prisma.appointment.delete({ where: { id } });

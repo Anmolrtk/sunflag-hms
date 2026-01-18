@@ -1,11 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Printer, Plus } from "lucide-react"
 
 export default function BillingPage() {
   const [invoices, setInvoices] = useState<any[]>([])
@@ -18,75 +14,66 @@ export default function BillingPage() {
   const fetchInvoices = async () => {
     try {
       const token = localStorage.getItem("token")
-      const res = await fetch("http://127.0.0.1:3000/invoices", {
-        headers: { Authorization: `Bearer ${token}` }
+      // Use the environment variable or fallback to localhost
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      
+      const res = await fetch(`${API_URL}/invoices`, {
+        headers: { "Authorization": `Bearer ${token}` }
       })
       if (res.ok) {
         const data = await res.json()
         setInvoices(data)
       }
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error("Failed to load invoices", err)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">Billing & Invoices</h1>
-        {/* Shortcut to create a generic bill without an appointment */}
-        {/* Note: This requires a patient ID, so we usually hide it or link to patient list */}
-      </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Billing & Invoices</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Invoices</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="relative w-full overflow-auto">
-            <table className="w-full caption-bottom text-sm text-left">
-              <thead className="[&_tr]:border-b">
-                <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                  <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Invoice #</th>
-                  <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Patient</th>
-                  <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Date</th>
-                  <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Amount</th>
-                  <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Status</th>
-                  <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-right">Actions</th>
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-slate-50 border-b">
+            <tr>
+              <th className="p-4 font-semibold text-slate-600">Patient</th>
+              <th className="p-4 font-semibold text-slate-600">Amount</th>
+              <th className="p-4 font-semibold text-slate-600">Status</th>
+              <th className="p-4 font-semibold text-slate-600">Date</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {loading ? (
+              <tr><td colSpan={4} className="p-4 text-center">Loading...</td></tr>
+            ) : invoices.length === 0 ? (
+              <tr><td colSpan={4} className="p-4 text-center text-slate-500">No invoices found</td></tr>
+            ) : (
+              invoices.map((inv) => (
+                <tr key={inv.id} className="hover:bg-slate-50">
+                  <td className="p-4">{inv.patient?.fullName || "Guest"}</td>
+                  <td className="p-4 font-bold">₹{inv.totalAmount}</td>
+                  <td className="p-4">
+                    {/* FIXED: Removed 'variant' and used 'className' directly */}
+                    <Badge className={
+                      inv.status === "PAID"
+                        ? "bg-green-600 hover:bg-green-700 text-white border-transparent"
+                        : "bg-gray-200 hover:bg-gray-300 text-gray-800 border-transparent"
+                    }>
+                      {inv.status}
+                    </Badge>
+                  </td>
+                  <td className="p-4 text-slate-500">
+                    {new Date(inv.createdAt).toLocaleDateString()}
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="[&_tr:last-child]:border-0">
-                {loading ? (
-                  <tr><td colSpan={6} className="p-4 text-center">Loading...</td></tr>
-                ) : invoices.length === 0 ? (
-                  <tr><td colSpan={6} className="p-4 text-center text-slate-500">No invoices generated yet.</td></tr>
-                ) : (
-                  invoices.map((inv) => (
-                    <tr key={inv.id} className="border-b transition-colors hover:bg-slate-50">
-                      <td className="p-4 font-mono font-medium">{inv.invoiceNumber}</td>
-                      <td className="p-4">{inv.patient.fullName}</td>
-                      <td className="p-4 text-slate-500">{new Date(inv.createdAt).toLocaleDateString()}</td>
-                      <td className="p-4 font-bold">₹{inv.totalAmount}</td>
-                      <td className="p-4">
-                        <Badge variant={inv.status === "PAID" ? "default" : "secondary"}>
-                          {inv.status}
-                        </Badge>
-                      </td>
-                      <td className="p-4 text-right">
-                        <Button variant="ghost" size="icon" onClick={() => alert("Print Feature Coming Soon!")}>
-                          <Printer className="h-4 w-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

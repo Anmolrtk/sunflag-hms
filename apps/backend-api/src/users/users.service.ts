@@ -21,22 +21,23 @@ export class UsersService {
   }
 
   // 3. Find All Doctors (Public)
-  async findAllDoctors() {
-    return this.prisma.user.findMany({
-      where: { role: 'DOCTOR' },
-      select: {
-        id: true,
-        fullName: true,
-        doctorProfile: {
-          select: {
-            specialization: true,
-            department: true,
-            consultationFee: true
+    async findAllDoctors() {
+      return this.prisma.user.findMany({
+        where: { role: 'DOCTOR' },
+        select: {
+          id: true,
+          fullName: true,
+          image: true,       // <--- Put it HERE (Sibling to fullName)
+          doctorProfile: {
+            select: {
+              specialization: true,
+              department: true,
+              consultationFee: true
+            }
           }
         }
-      }
-    });
-  }
+      });
+    }
 
   // 4. Create User (Handles Profiles Automatically)
   async createUser(data: any) {

@@ -21,11 +21,11 @@ export class AppointmentsController {
   }
 
   // 3. Update Status
-  @UseGuards(JwtAuthGuard)
-  @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body('status') status: string) {
-    return this.appointmentsService.updateStatus(id, status);
-  }
+    @UseGuards(JwtAuthGuard)
+      @Patch(':id')
+      async update(@Param('id') id: string, @Body() body: { status: string }) {
+        return this.appointmentsService.updateStatus(id, body.status);
+      }
   
   // 4. Delete
   @UseGuards(JwtAuthGuard)

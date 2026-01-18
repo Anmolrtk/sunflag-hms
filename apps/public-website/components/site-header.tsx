@@ -47,13 +47,13 @@ export function SiteHeader() {
         <div className="flex items-center gap-4">
           
           {/* Emergency Number */}
-          <div className="hidden xl:flex items-center gap-2 text-red-600 font-bold mr-2">
+          <div className="hidden xl:flex items-center gap-2 text-red-800 font-bold mr-2">
             <Phone className="h-4 w-4 fill-current" />
             <span>Emergency: +91 9254308880</span>
           </div>
 
           {/* Desktop Staff Login - CONNECTED TO DASHBOARD */}
-          <Link href={ADMIN_URL} target="_blank" className="hidden sm:flex items-center gap-1 text-slate-500 hover:text-blue-600 text-sm font-medium mr-2 transition-colors border px-3 py-1.5 rounded-md hover:bg-slate-50">
+          <Link href={ADMIN_URL} target="_blank" className="hidden sm:flex items-center gap-1 text-blue-500 hover:text-blue-900 text-sm font-medium mr-2 transition-colors border px-3 py-1.5 rounded-md hover:bg-red-300">
             <Lock className="h-3 w-3" />
             <span>Login</span>
           </Link>

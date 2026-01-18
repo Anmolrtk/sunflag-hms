@@ -18,7 +18,8 @@ export default function AddStaffPage() {
     password: "",
     role: "",
     department: "",
-    specialization: ""
+    specialization: "",
+      image: ""
   })
 
   const handleSubmit = async (e: React.FormEvent) => {

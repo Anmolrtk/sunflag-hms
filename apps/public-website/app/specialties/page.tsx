@@ -23,7 +23,7 @@ export default function SpecialtiesPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero */}
-      <div className="bg-slate-900 text-white py-16 text-center">
+      <div className="bg-blue-900 text-white py-24 text-center">
         <h1 className="text-4xl font-bold mb-4">Centers of Excellence</h1>
         <p className="text-slate-300 max-w-2xl mx-auto px-4">
           Sunflag Global Hospital is recognized for its specialized departments

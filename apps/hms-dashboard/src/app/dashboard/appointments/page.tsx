@@ -1,167 +1,173 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Calendar, Clock, User, CheckCircle, XCircle, Trash2, Search, Stethoscope } from "lucide-react"
+import { Calendar, Clock, User, FileText, CheckCircle, XCircle } from "lucide-react"
 
 export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<any[]>([])
+  const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
+
+  // Fetch Appointments on Load
+  useEffect(() => {
+    fetchAppointments()
+  }, [])
 
   const fetchAppointments = async () => {
-    setLoading(true)
     try {
       const token = localStorage.getItem("token")
+      // Ensure we use the correct backend port (3001)
       const res = await fetch("http://localhost:3001/appointments", {
-        headers: { "Authorization": `Bearer ${token}` },
-        cache: "no-store" // Ensure we don't get cached old data
+        headers: { "Authorization": `Bearer ${token}` }
       })
-      const data = await res.json()
-      
-      console.log("API DATA RECEIVED:", data) // <--- DEBUG LOG: Look at this in Console!
 
-      if (Array.isArray(data)) {
+      if (res.ok) {
+        const data = await res.json()
         setAppointments(data)
+      } else {
+        console.error("Failed to fetch appointments")
       }
     } catch (error) {
-      console.error("Failed to load appointments", error)
+      console.error("Error loading appointments:", error)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    fetchAppointments()
-  }, [])
+  // Handle Status Update (Mock Function for now)
+    // Real API Function
+      const updateStatus = async (id: string, newStatus: string) => {
+        try {
+          const token = localStorage.getItem("token")
+          
+          // Call the Backend to update status
+          const res = await fetch(`http://localhost:3001/appointments/${id}`, {
+            method: 'PATCH',
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ status: newStatus })
+          })
 
-  const updateStatus = async (id: string, status: string) => {
-    try {
-      const token = localStorage.getItem("token")
-      const res = await fetch(`http://localhost:3001/appointments/${id}/status`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ status })
-      })
-      if (res.ok) fetchAppointments()
-    } catch (error) { console.error(error) }
-  }
+          if (res.ok) {
+            // If success, update the UI instantly
+            setAppointments(prev =>
+              prev.map((app: any) => app.id === id ? { ...app, status: newStatus } : app)
+            )
+          } else {
+            alert("Failed to update. Check backend terminal for errors.")
+            console.error("Update failed:", res.status)
+          }
+        } catch (error) {
+          console.error("Error updating status:", error)
+        }
+      }
 
-  const deleteAppointment = async (id: string) => {
-    if(!confirm("Are you sure?")) return;
-    try {
-      const token = localStorage.getItem("token")
-      const res = await fetch(`http://localhost:3001/appointments/${id}`, {
-          method: "DELETE",
-          headers: { "Authorization": `Bearer ${token}` }
-      })
-      if (res.ok) fetchAppointments()
-    } catch (error) { console.error(error) }
-  }
-
-  // Filter Logic (Handles Guests Correctly)
-  const filtered = appointments.filter(app => {
-    // Check both "Guest Name" (patientName) and "Registered Name" (patient.fullName)
-    const pName = app.patientName || app.patient?.fullName || "Guest"
-    const dName = app.doctor?.fullName || "Unassigned"
-    const term = searchTerm.toLowerCase()
-    
-    return pName.toLowerCase().includes(term) || dName.toLowerCase().includes(term)
-  })
-
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case "CONFIRMED": return "bg-green-100 text-green-700 hover:bg-green-200"
-      case "CANCELLED": return "bg-red-100 text-red-700 hover:bg-red-200"
-      default: return "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-    }
-  }
+  if (loading) return <div className="p-8 text-center text-slate-500">Loading Appointments...</div>
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-800">Appointments</h2>
-          <p className="text-slate-500">Manage patient bookings.</p>
-        </div>
-        <div className="flex gap-2">
-           <Button onClick={fetchAppointments} variant="outline">Refresh</Button>
-           <Link href="/dashboard/appointments/add">
-             <Button className="bg-blue-600 hover:bg-blue-700">
-               + New Appointment
-             </Button>
-           </Link>
-        </div>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900">Appointments</h2>
+        <Button onClick={fetchAppointments} variant="outline">
+          Refresh List
+        </Button>
       </div>
 
-      <Card className="p-4">
-        <div className="relative max-w-sm">
-           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-           <Input
-             placeholder="Search by Patient or Doctor..."
-             className="pl-9"
-             onChange={(e) => setSearchTerm(e.target.value)}
-           />
-        </div>
-      </Card>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {loading && <p>Loading...</p>}
-        {!loading && filtered.length === 0 && <p className="text-slate-500">No appointments found.</p>}
-
-        {filtered.map((apt) => (
-          <Card key={apt.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-3">
-                <Badge className={getStatusColor(apt.status)}>{apt.status}</Badge>
-                <button onClick={() => deleteAppointment(apt.id)} className="text-slate-400 hover:text-red-500">
-                  <Trash2 size={16} />
-                </button>
-              </div>
-
-              {/* Display Logic: Priority to Guest Name, then Registered User Name */}
-              <h3 className="font-bold text-lg text-slate-900">
-                 {apt.patientName || apt.patient?.fullName || "Guest Patient"}
-              </h3>
-              <p className="text-sm text-slate-500 mb-4">
-                 {apt.patientPhone || apt.patient?.phone || "No Phone"}
-              </p>
-
-              <div className="space-y-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-md">
-                <div className="flex items-center gap-2">
-                   <Calendar size={14} className="text-blue-500" />
-                   <span>{new Date(apt.date).toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                   <Clock size={14} className="text-blue-500" />
-                   <span>{new Date(apt.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>
-                <div className="flex items-center gap-2 font-medium text-slate-800">
-                   <Stethoscope size={14} className="text-purple-500" />
-                   <span>Dr. {apt.doctor?.fullName || "Unassigned"}</span>
-                </div>
-              </div>
-
-              {apt.status === "PENDING" && (
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50" onClick={() => updateStatus(apt.id, "CONFIRMED")}>
-                    <CheckCircle className="mr-1 h-4 w-4" /> Accept
-                  </Button>
-                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => updateStatus(apt.id, "CANCELLED")}>
-                    <XCircle className="mr-1 h-4 w-4" /> Reject
-                  </Button>
-                </div>
-              )}
+      <div className="grid gap-4">
+        {appointments.length === 0 ? (
+          <Card>
+            <CardContent className="p-10 text-center text-slate-500">
+              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-20" />
+              <p>No appointments found for today.</p>
             </CardContent>
           </Card>
-        ))}
+        ) : (
+          appointments.map((apt: any) => (
+            <Card key={apt.id} className="overflow-hidden">
+              <div className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                
+                {/* Left: Patient Info */}
+                <div className="flex items-start gap-4">
+                  <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                    {apt.patientName?.charAt(0) || "P"}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-900">{apt.patientName}</h3>
+                    <div className="flex items-center gap-4 text-sm text-slate-500 mt-1">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" /> {new Date(apt.date).toLocaleDateString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {new Date(apt.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle: Details */}
+                <div className="flex-1 md:px-8">
+                  <div className="flex items-center gap-2 text-sm text-slate-700 mb-1">
+                    <User className="h-4 w-4 text-slate-400" />
+                    <span className="font-medium">{apt.doctor?.fullName || "Unknown"}</span>
+                  </div>
+                  {apt.reason && (
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <FileText className="h-4 w-4 text-slate-400" />
+                      <span>{apt.reason}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right: Status & Actions */}
+                                          {/* Right: Status & Actions */}
+                                          <div className="flex flex-col items-end gap-3 min-w-[140px]">
+                                            
+                                            {/* Status Badge */}
+                                            <Badge className={
+                                              apt.status === "CONFIRMED" ? "bg-green-100 text-green-700 hover:bg-green-100 border-green-200" :
+                                              apt.status === "CANCELLED" ? "bg-red-100 text-red-700 hover:bg-red-100 border-red-200" :
+                                              "bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-yellow-200"
+                                            }>
+                                              {apt.status || "PENDING"}
+                                            </Badge>
+
+                                            {/* VISIBLE Action Buttons */}
+                                            {apt.status !== "CANCELLED" && (
+                                              <div className="flex gap-2">
+                                                {/* Confirm Button */}
+                                                {apt.status !== "CONFIRMED" && (
+                                                  <Button
+                                                    size="sm"
+                                                    className="bg-green-600 hover:bg-green-700 text-white h-8"
+                                                    onClick={() => updateStatus(apt.id, "CONFIRMED")}
+                                                  >
+                                                    <CheckCircle className="h-4 w-4 mr-1" /> Confirm
+                                                  </Button>
+                                                )}
+
+                                                {/* Cancel Button */}
+                                                <Button
+                                                  size="sm"
+                                                  variant="outline"
+                                                  className="border-red-200 text-red-600 hover:bg-red-50 h-8"
+                                                  onClick={() => updateStatus(apt.id, "CANCELLED")}
+                                                >
+                                                  <XCircle className="h-4 w-4 mr-1" /> Cancel
+                                                </Button>
+                                              </div>
+                                            )}
+                                          </div>
+
+
+
+              </div>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   )

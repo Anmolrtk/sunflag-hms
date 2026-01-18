@@ -4,19 +4,26 @@ import { Calendar, Stethoscope, Clock, ShieldCheck, Ear, Brain, Bone } from "luc
 import Link from "next/link"
 
 export default function Home() {
-  return (
-    <div className="flex flex-col min-h-screen">
-      
-      {/* 1. HERO SECTION */}
-      <section className="relative bg-blue-900 text-white py-24 lg:py-32">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+    return (
+            <div className="flex flex-col min-h-screen">
+            
+            {/* 1. HERO SECTION */}
+            <section className="relative bg-blue-900 text-white py-24 lg:py-32">
+            <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            Sunflag Global Hospital
+            </h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
             Advanced Healthcare <br /> for a Better Tomorrow
-          </h1>
-          <p className="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Sunflag Global Hospital provides world-class medical services with
-            cutting-edge technology and compassionate care.
-          </p>
+            </h1>
+            
+            
+            { /* <p className="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+             Sunflag Global Hospital provides world-class medical services with
+             cutting-edge technology and compassionate care.
+             </p> */}
+            
+            
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/book">
               <Button size="lg" className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto text-lg px-8 py-6">
@@ -36,8 +43,8 @@ export default function Home() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900">Why Choose Sunflag?</h2>
-            <p className="text-slate-500 mt-2">Committed to clinical excellence and patient care</p>
+            <h2 className="text-3xl font-bold text-slate-1000">Why Choose Sunflag?</h2>
+            <p className="text-slate-500 mt-2">State-of-the-art facilities, round-the-clock emergency services, and attentive nursing ensure comfort, safety, and continuity of care at every stage of treatment.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -46,8 +53,8 @@ export default function Home() {
                 <Stethoscope className="h-10 w-10 text-blue-600 mb-2" />
                 <CardTitle>Expert Doctors</CardTitle>
               </CardHeader>
-              <CardContent className="text-slate-600">
-                Our team includes over 10+ specialists and super-specialists from top medical institutions.
+              <CardContent className="text-slate-1000">
+                Our team includes over 12+ specialists and super-specialists from top medical institutions.
               </CardContent>
             </Card>
 

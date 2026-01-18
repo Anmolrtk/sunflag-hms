@@ -2,46 +2,50 @@ import { Controller, Get, Post, Patch, Body, UseGuards, Delete, Param } from '@n
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
-    
-    // 1. Get List of Doctors
+  constructor(private readonly usersService: UsersService) {}
+
+  // --- THIS MUST BE FIRST ---
+  @Get('public/doctors')
+  async getPublicDoctors() {
+      console.log("✅ Public Doctors route was hit!");
+      return this.usersService.findAllDoctors();
+  }
+
+    // -----------------------------------------------------
+    // 2. PROTECTED ROUTES (Below Public)
+    // -----------------------------------------------------
+
+    // Get List of Doctors (For Dashboard)
     @UseGuards(JwtAuthGuard)
     @Get('doctors')
     async getDoctors() {
         return this.usersService.findAllDoctors();
     }
     
-    // 2. Add a New User/Staff
+    // Add a New User/Staff
     @UseGuards(JwtAuthGuard)
     @Post()
     async create(@Body() body: any) {
         return this.usersService.createUser(body);
     }
 
-    // 3. Public Endpoint: Get Doctors for Website
-    @Get('public/doctors')
-    async getPublicDoctors() {
-        return this.usersService.findAllDoctors();
-    }
-
-    // 4. Get ALL Users for Dashboard
+    // Get ALL Users
     @UseGuards(JwtAuthGuard)
     @Get()
     async findAll() {
         return this.usersService.findAll();
     }
 
-    // 5. Delete User (Fixed: ID is passed as a string)
+    // Delete User
     @UseGuards(JwtAuthGuard)
     @Delete(':id')
     async remove(@Param('id') id: string) {
         return this.usersService.remove(id);
     }
     
-    // 6. Update User (Profile Management)
+    // Update User
     @UseGuards(JwtAuthGuard)
     @Patch(':id')
     async update(@Param('id') id: string, @Body() body: any) {
