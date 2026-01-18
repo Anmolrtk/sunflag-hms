@@ -35,7 +35,7 @@ export default function AddStaffPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:3001/users", {
+      const res = await fetch("https://sunflag-hms.onrender.com/users", {
         method: "POST",
         headers: {
           // 2. Send Token in Headers

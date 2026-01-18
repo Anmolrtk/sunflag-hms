@@ -17,7 +17,7 @@ export default function PrescriptionList() {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const res = await fetch("http://localhost:3001/prescriptions", {
+      const res = await fetch("https://sunflag-hms.onrender.com/prescriptions", {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (res.ok) {

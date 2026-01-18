@@ -23,7 +23,7 @@ export default function StaffPage() {
       const token = localStorage.getItem("token")
       if (!token) { router.push("/login"); return; }
 
-      const res = await fetch("http://localhost:3001/users", {
+      const res = await fetch("https://sunflag-hms.onrender.com/users", {
         headers: { "Authorization": `Bearer ${token}` }
       })
       
@@ -48,7 +48,7 @@ export default function StaffPage() {
           const token = localStorage.getItem("token")
           
           // Ensure we are sending the ID correctly
-          const res = await fetch(`http://localhost:3001/users/${id}`, {
+          const res = await fetch(`https://sunflag-hms.onrender.com/users/${id}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
           })

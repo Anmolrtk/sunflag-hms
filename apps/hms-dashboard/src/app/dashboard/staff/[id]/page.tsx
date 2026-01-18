@@ -24,7 +24,7 @@ export default function EditStaffPage() {
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("token")
-      const res = await fetch(`http://localhost:3001/users`, { // We fetch all to find one (simplest for now)
+      const res = await fetch(`https://sunflag-hms.onrender.com/users`, { // We fetch all to find one (simplest for now)
          headers: { "Authorization": `Bearer ${token}` }
       })
       const data = await res.json()
@@ -53,7 +53,7 @@ export default function EditStaffPage() {
     const token = localStorage.getItem("token")
 
     try {
-      const res = await fetch(`http://localhost:3001/users/${id}`, {
+      const res = await fetch(`https://sunflag-hms.onrender.com/users/${id}`, {
         method: "PATCH",
         headers: {
           "Authorization": `Bearer ${token}`,

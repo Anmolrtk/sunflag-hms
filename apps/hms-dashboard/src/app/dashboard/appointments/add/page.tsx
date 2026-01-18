@@ -31,7 +31,7 @@ export default function BookAppointmentPage() {
       try {
         const token = localStorage.getItem("token")
         // Note: Using the public endpoint so we get all doctors easily
-        const res = await fetch("http://localhost:3001/users/public/doctors", {
+        const res = await fetch("https://sunflag-hms.onrender.com/users/public/doctors", {
           headers: { "Authorization": `Bearer ${token}` }
         })
         const data = await res.json()
@@ -53,7 +53,7 @@ export default function BookAppointmentPage() {
       // Combine Date and Time into a single ISO string
       const dateTime = new Date(`${formData.date}T${formData.time}:00`)
 
-      const res = await fetch("http://localhost:3001/appointments", {
+      const res = await fetch("https://sunflag-hms.onrender.com/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

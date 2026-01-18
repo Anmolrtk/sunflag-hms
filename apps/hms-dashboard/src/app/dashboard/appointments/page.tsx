@@ -19,7 +19,7 @@ export default function AppointmentsPage() {
     try {
       const token = localStorage.getItem("token")
       // Ensure we use the correct backend port (3001)
-      const res = await fetch("http://localhost:3001/appointments", {
+      const res = await fetch("https://sunflag-hms.onrender.com/appointments", {
         headers: { "Authorization": `Bearer ${token}` }
       })
 
@@ -43,7 +43,7 @@ export default function AppointmentsPage() {
           const token = localStorage.getItem("token")
           
           // Call the Backend to update status
-          const res = await fetch(`http://localhost:3001/appointments/${id}`, {
+          const res = await fetch(`https://sunflag-hms.onrender.com/appointments/${id}`, {
             method: 'PATCH',
             headers: {
               "Content-Type": "application/json",

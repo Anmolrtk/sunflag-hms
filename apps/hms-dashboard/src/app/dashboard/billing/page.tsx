@@ -15,7 +15,7 @@ export default function BillingPage() {
     try {
       const token = localStorage.getItem("token")
       // Use the environment variable or fallback to localhost
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://sunflag-hms.onrender.com"
       
       const res = await fetch(`${API_URL}/invoices`, {
         headers: { "Authorization": `Bearer ${token}` }

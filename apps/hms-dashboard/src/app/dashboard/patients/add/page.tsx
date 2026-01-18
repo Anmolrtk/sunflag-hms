@@ -38,7 +38,7 @@ export default function RegisterPatientPage() {
         email: formData.email || `patient-${Date.now()}@hospital.com`
       }
 
-      const res = await fetch("http://localhost:3001/users", {
+      const res = await fetch("https://sunflag-hms.onrender.com/users", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

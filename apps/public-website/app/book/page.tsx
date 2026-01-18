@@ -27,7 +27,7 @@ export default function BookAppointmentPage() {
 
   // Fetch Doctors
   useEffect(() => {
-    fetch("http://localhost:3001/users/public/doctors")
+    fetch("https://sunflag-hms.onrender.com/users/public/doctors")
       .then((res) => res.json())
       .then((data) => setDoctors(data))
       .catch((err) => console.error("Failed to load doctors", err));
@@ -56,7 +56,7 @@ export default function BookAppointmentPage() {
 
       console.log("📤 Sending Data:", payload);
 
-      const res = await fetch("http://localhost:3001/appointments/public", {
+      const res = await fetch("https://sunflag-hms.onrender.com/appointments/public", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

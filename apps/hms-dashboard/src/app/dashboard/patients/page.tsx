@@ -20,7 +20,7 @@ export default function PatientsPage() {
   const fetchPatients = async () => {
     try {
       const token = localStorage.getItem("token")
-      const res = await fetch("http://localhost:3001/users", {
+      const res = await fetch("https://sunflag-hms.onrender.com/users", {
          headers: { "Authorization": `Bearer ${token}` }
       })
       const data = await res.json()
