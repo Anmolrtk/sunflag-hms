@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from './notifications.service';
+import * as Twilio from 'twilio';
 
 @Injectable()
 export class AppointmentsService {
@@ -73,12 +74,41 @@ export class AppointmentsService {
     });
   }
 
-  // 4. Update Status & Send WhatsApp
-    async updateStatus(id: string, status: string) {
-        return this.prisma.appointment.update({
+    // --- UPDATE STATUS & SEND WHATSAPP ---
+      async updateStatus(id: string, status: string) {
+        // 1. Update the Database first
+        const appointment = await this.prisma.appointment.update({
           where: { id },
           data: { status },
+          include: { patient: true, doctor: true } // We need names for the message
         });
+
+        // 2. If Confirmed, Send WhatsApp
+        if (status === 'CONFIRMED') {
+          await this.sendWhatsApp(appointment);
+        }
+
+        return appointment;
+      }
+
+      // Helper Function: Send WhatsApp via Twilio
+      async sendWhatsApp(appointment: any) {
+        // REPLACE THESE WITH YOUR TWILIO KEYS LATER
+          const accountSid = process.env.TWILIO_ACCOUNT_SID;
+          const authToken = process.env.TWILIO_AUTH_TOKEN;
+        const client = Twilio(accountSid, authToken);
+
+        try {
+          const message = await client.messages.create({
+            body: `✅ Appointment Confirmed!\n\nDear ${appointment.patientName},\nYour appointment with Dr. ${appointment.doctor.fullName} is confirmed for ${new Date(appointment.date).toLocaleString()}.\n\n- Sunflag Global Hospital`,
+            from: 'whatsapp:+15865000094', // Twilio Sandbox Number (or your real one)
+            to: `whatsapp:+91{appointment.contactInfo}` // Ensure this number has country code (e.g., +91...)
+          });
+          console.log('WhatsApp sent:', message.sid);
+        } catch (error) {
+          console.error('Failed to send WhatsApp:', error.message);
+          // We catch the error so the app doesn't crash if Twilio fails
+        }
       }
   
   async remove(id: string) {
