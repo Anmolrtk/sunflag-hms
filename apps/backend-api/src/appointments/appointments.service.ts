@@ -114,7 +114,7 @@ export class AppointmentsService {
           const client = new Twilio(accountSid, authToken); // This line fails if SID is missing
 
           const message = await client.messages.create({
-            body: `✅ Appointment Confirmed!\n\nDear ${appointment.patientName},\nYour appointment with Dr. ${appointment.doctor.fullName} is confirmed for ${new Date(appointment.date).toLocaleString()}.\n\n- Sunflag Global Hospital`,
+            body: `✅ Appointment Confirmed!\n\nDear ${appointment.patientName},\nYour appointment with ${appointment.doctor.fullName} is confirmed for ${new Date(appointment.date).toLocaleString()}.\n\n- Sunflag Global Hospital`,
             from: 'whatsapp:+14155238886',
             to: `whatsapp:+91${appointment.patientPhone}` // Ensure +91 is here
           });
