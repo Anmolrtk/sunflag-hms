@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from './notifications.service';
@@ -102,7 +103,7 @@ export class AppointmentsService {
           const message = await client.messages.create({
             body: `✅ Appointment Confirmed!\n\nDear ${appointment.patientName},\nYour appointment with Dr. ${appointment.doctor.fullName} is confirmed for ${new Date(appointment.date).toLocaleString()}.\n\n- Sunflag Global Hospital`,
             from: 'whatsapp:+15865000094', // Twilio Sandbox Number (or your real one)
-            to: `whatsapp:+91${appointment.contactInfo}` // Ensure this number has country code (e.g., +91...)
+            to: `whatsapp:+91${appointment.patientPhone}` // Ensure this number has country code (e.g., +91...)
           });
           console.log('WhatsApp sent:', message.sid);
         } catch (error) {
