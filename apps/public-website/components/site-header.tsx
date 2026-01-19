@@ -20,7 +20,7 @@ export function SiteHeader() {
 
   // This points to your Admin Dashboard
   // Default is localhost:3000 (Local), but respects Environment Variables (Live)
-  const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || "https://sunflag-hms.onrender.com"
+  const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || "https://sunflag-hms.vercel.app"
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur">
