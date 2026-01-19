@@ -20,7 +20,7 @@ export default function LoginPage() {
 
     try {
       // FIX: Use the full URL to your backend (Port 3001)
-      const res = await fetch("https://backend-api-mauve.vercel.app/auth/login", {
+      const res = await fetch("https://sunflag-hms.onrender.com/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

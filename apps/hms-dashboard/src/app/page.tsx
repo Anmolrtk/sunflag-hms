@@ -23,7 +23,7 @@ export default function LoginPage() {
     try {
       // 1. Call your NestJS Backend
       // Note: In local dev, use http://localhost:3000. In prod, use ENV vars.
-      const res = await fetch("https://sunflag-hms.vercel.app/auth/login", {
+      const res = await fetch("https://sunflag-hms.onrender.com/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
