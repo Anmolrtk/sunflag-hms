@@ -92,23 +92,35 @@ export class AppointmentsService {
         return appointment;
       }
 
-      // Helper Function: Send WhatsApp via Twilio
+    // Helper Function: Send WhatsApp via Twilio
       async sendWhatsApp(appointment: any) {
-        // REPLACE THESE WITH YOUR TWILIO KEYS LATER
-          const accountSid = process.env.TWILIO_ACCOUNT_SID;
-          const authToken = process.env.TWILIO_AUTH_TOKEN;
-          const client = new Twilio(accountSid, authToken);
+        const accountSid = process.env.TWILIO_ACCOUNT_SID;
+        const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+        // 👇 DEBUGGING BLOCK START
+        console.log("--- TWILIO DEBUGGER ---");
+        console.log("Looking for SID:", accountSid ? "✅ Found it!" : "❌ MISSING (Undefined)");
+        console.log("Looking for Token:", authToken ? "✅ Found it!" : "❌ MISSING (Undefined)");
+        console.log("-----------------------");
+        // 👆 DEBUGGING BLOCK END
+
+        // If missing, stop here to prevent crash
+        if (!accountSid || !authToken) {
+          console.error("⛔ ERROR: Twilio Keys are missing from Environment Variables!");
+          return;
+        }
 
         try {
+          const client = new Twilio(accountSid, authToken); // This line fails if SID is missing
+
           const message = await client.messages.create({
             body: `✅ Appointment Confirmed!\n\nDear ${appointment.patientName},\nYour appointment with Dr. ${appointment.doctor.fullName} is confirmed for ${new Date(appointment.date).toLocaleString()}.\n\n- Sunflag Global Hospital`,
-            from: 'whatsapp:+15865000094', // Twilio Sandbox Number (or your real one)
-            to: `whatsapp:+91${appointment.patientPhone}` // Ensure this number has country code (e.g., +91...)
+            from: 'whatsapp:+14155238886',
+            to: `whatsapp:+91${appointment.patientPhone}` // Ensure +91 is here
           });
-          console.log('WhatsApp sent:', message.sid);
+          console.log('WhatsApp sent successfully:', message.sid);
         } catch (error) {
           console.error('Failed to send WhatsApp:', error.message);
-          // We catch the error so the app doesn't crash if Twilio fails
         }
       }
   
