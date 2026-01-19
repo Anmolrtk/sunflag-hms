@@ -10,8 +10,9 @@ async function bootstrap() {
   
   // Enable CORS
     app.enableCors({
-        origin: '*', // Allow Vercel/Public access
+        origin: '*', // ⚠️ Allows ALL domains (Easiest fix for now)
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        credentials: true,
       });
 
   // Create Default Admin if not exists
