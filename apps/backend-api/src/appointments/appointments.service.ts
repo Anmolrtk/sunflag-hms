@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from './notifications.service';
-import * as Twilio from 'twilio';
+import { Twilio } from 'twilio';
 
 @Injectable()
 export class AppointmentsService {
@@ -96,7 +96,7 @@ export class AppointmentsService {
         // REPLACE THESE WITH YOUR TWILIO KEYS LATER
           const accountSid = process.env.TWILIO_ACCOUNT_SID;
           const authToken = process.env.TWILIO_AUTH_TOKEN;
-        const client = Twilio(accountSid, authToken);
+          const client = new Twilio(accountSid, authToken);
 
         try {
           const message = await client.messages.create({
