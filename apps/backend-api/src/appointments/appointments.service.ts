@@ -94,7 +94,7 @@ export class AppointmentsService {
 
     // Helper Function: Send WhatsApp via Twilio
       async sendWhatsApp(appointment: any) {
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
+          const accountSid = process.env.TWILIO_SID_FINAL;
         const authToken = process.env.TWILIO_AUTH_TOKEN;
 
         // 👇 DEBUGGING BLOCK START
