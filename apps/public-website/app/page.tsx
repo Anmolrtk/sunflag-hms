@@ -82,12 +82,12 @@ export default function Home() {
       </section>
 
       {/* 3. DEPARTMENTS PREVIEW */}
-      <section className="py-20 bg-Black-1000">
+      <section className="py-20 bg-Black-950">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-end mb-12">
             <div>
               <h2 className="text-3xl font-bold text-black-900">Centers of Excellence</h2>
-              <p className="text-slate-500 mt-2">Specialized care for complex conditions</p>
+              <p className="text-black-950 mt-2">Specialized care for complex conditions</p>
             </div>
             <Link href="/services" className="text-blue-600 font-semibold hover:underline hidden sm:block">
               View All Departments →
@@ -100,7 +100,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-pink-200 transition-colors">
                 <Ear className="h-8 w-8 text-pink-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">ENT</h3>
+              <h3 className="font-bold text-black-950 text-lg mb-2">ENT</h3>
             </div>
             
             {/* Neurology */}
@@ -108,7 +108,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
                 <Brain className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Neurology</h3>
+              <h3 className="font-bold text-black-950 text-lg mb-2">Neurology</h3>
             </div>
 
             {/* Orthopedics */}
@@ -116,7 +116,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-yellow-200 transition-colors">
                 <Bone className="h-8 w-8 text-yellow-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Orthopedics</h3>
+              <h3 className="font-bold text-black-950 text-lg mb-2">Orthopedics</h3>
             </div>
 
             {/* General Medicine */}
@@ -124,7 +124,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
                 <Stethoscope className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">General Medicine</h3>
+              <h3 className="font-bold text-black-950 text-lg mb-2">General Medicine</h3>
             </div>
           </div>
         </div>
