@@ -43,8 +43,8 @@ export default function Home() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-black-700">Why Choose Sunflag?</h2>
-            <p className="text-black-1000 mt-2">State-of-the-art facilities, round-the-clock emergency services, and attentive nursing ensure comfort, safety, and continuity of care at every stage of treatment.</p>
+            <h2 className="text-3xl font-bold text-black-950">Why Choose Sunflag?</h2>
+            <p className="text-black-950 mt-2">State-of-the-art facilities, round-the-clock emergency services, and attentive nursing ensure comfort, safety, and continuity of care at every stage of treatment.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -53,17 +53,17 @@ export default function Home() {
                 <Stethoscope className="h-10 w-10 text-blue-600 mb-2" />
                 <CardTitle>Expert Doctors</CardTitle>
               </CardHeader>
-              <CardContent className="text-black-1000">
+              <CardContent className="text-black-950">
                 Our team includes over 12+ specialists and super-specialists from top medical institutions.
               </CardContent>
             </Card>
 
             <Card className="border-t-4 border-green-500 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader>
-                <Clock className="h-10 w-10 text-black-600 mb-2" />
+                <Clock className="h-10 w-10 text-black-950 mb-2" />
                 <CardTitle>24/7 Emergency</CardTitle>
               </CardHeader>
-              <CardContent className="text-black-600">
+              <CardContent className="text-black-950">
                 Round-the-clock emergency services with fully equipped advanced life support ambulances.
               </CardContent>
             </Card>
@@ -73,7 +73,7 @@ export default function Home() {
                 <ShieldCheck className="h-10 w-10 text-purple-600 mb-2" />
                 <CardTitle>Modern Technology</CardTitle>
               </CardHeader>
-              <CardContent className="text-black-1000">
+              <CardContent className="text-black-950">
                 Equipped with the latest diagnostic and surgical technology for precise treatment.
               </CardContent>
             </Card>
