@@ -56,7 +56,7 @@ export default function BookAppointmentPage() {
 
       console.log("📤 Sending Data:", payload);
 
-      const res = await fetch("https://sunflagglobalhospital.com/appointments/public", {
+      const res = await fetch("https://sunflag-hms.onrender.com/appointments/public", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
