@@ -27,7 +27,7 @@ export default function BookAppointmentPage() {
 
   // Fetch Doctors
   useEffect(() => {
-    fetch("https://sunflagglobalhospital.com/users/public/doctors")
+    fetch("https://sunflag-hms.onrender.com/users/public/doctors")
       .then((res) => res.json())
       .then((data) => setDoctors(data))
       .catch((err) => console.error("Failed to load doctors", err));
