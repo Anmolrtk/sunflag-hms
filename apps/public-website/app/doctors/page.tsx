@@ -12,7 +12,7 @@ export default function DoctorsPage() {
 
   useEffect(() => {
     // 1. We use the URL that we just confirmed works!
-    fetch("https://sunflagglobalhospital.com/users/public/doctors", { cache: 'no-store' })
+    fetch("https://sunflag-hms.onrender.com/users/public/doctors", { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         console.log("Doctors found:", data); // Check your browser console to see the list!
