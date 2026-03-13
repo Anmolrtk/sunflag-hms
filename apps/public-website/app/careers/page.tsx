@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Briefcase, Upload, CheckCircle2, MapPin } from "lucide-react"
+import { Briefcase, Upload, CheckCircle2, MapPin, UserPlus, FileText, Award } from "lucide-react"
 
 export default function CareersPage() {
   const [loading, setLoading] = useState(false)
@@ -40,27 +40,38 @@ export default function CareersPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <div className="bg-blue-900 text-white py-16 text-center">
-        <h1 className="text-4xl font-bold mb-4">Join Our Team</h1>
-        <p className="text-blue-100 max-w-2xl mx-auto px-4">
-          Build your career with Sunflag Global Hospital. We are always looking for
-          passionate individuals to join our mission of saving lives.
-        </p>
+      <div className="relative bg-blue-900 text-white py-20 text-center overflow-hidden">
+        {/* Careers Background Animations */}
+        <div className="absolute inset-0 pointer-events-none opacity-15">
+          <Briefcase className="absolute top-12 left-[15%] w-24 h-24 text-blue-300 animate-[bounce_5s_ease-in-out_infinite]" />
+          <UserPlus className="absolute bottom-8 left-[25%] w-16 h-16 text-green-300 animate-[pulse_4s_ease-in-out_infinite]" />
+          <FileText className="absolute top-1/2 right-[15%] w-20 h-20 text-purple-300 animate-[bounce_6s_ease-in-out_infinite]" />
+          <Award className="absolute bottom-12 right-[30%] w-24 h-24 text-yellow-300 animate-[pulse_3s_ease-in-out_infinite]" />
+          <CheckCircle2 className="absolute top-8 left-[40%] w-12 h-12 text-cyan-200 animate-[ping_8s_ease-in-out_infinite]" />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-md">Join Our Team</h1>
+          <p className="text-blue-100 max-w-2xl mx-auto text-lg drop-shadow">
+            Build your career with Sunflag Global Hospital. We are always looking for
+            passionate individuals to join our mission of saving lives.
+          </p>
+        </div>
       </div>
 
       <div className="container mx-auto px-4 py-16 grid lg:grid-cols-2 gap-12">
-        
+
         {/* LEFT COLUMN: Open Positions */}
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-black mb-6 flex items-center gap-2">
             <Briefcase className="h-6 w-6 text-blue-600" /> Current Openings
           </h2>
-          
+
           <div className="space-y-4">
             {jobs.map((job) => (
               <div key={job.id} className="bg-white p-6 rounded-lg shadow-sm border hover:border-blue-300 transition-colors">
-                <h3 className="font-bold text-lg text-slate-900">{job.title}</h3>
-                <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
+                <h3 className="font-bold text-lg text-black">{job.title}</h3>
+                <div className="flex items-center gap-4 mt-2 text-sm text-black">
                   <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded font-medium">{job.type}</span>
                   <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {job.dept}</span>
                 </div>
@@ -84,21 +95,21 @@ export default function CareersPage() {
               <CardDescription>Fill out the form below to submit your application.</CardDescription>
             </CardHeader>
             <CardContent className="p-6 bg-white">
-              
+
               {success ? (
                 <div className="text-center py-10">
                   <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="h-8 w-8 text-green-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-800">Application Received!</h3>
-                  <p className="text-slate-500 mt-2">Thank you for applying. Our HR team will review your resume and contact you shortly.</p>
+                  <h3 className="text-xl font-bold text-black">Application Received!</h3>
+                  <p className="text-black mt-2">Thank you for applying. Our HR team will review your resume and contact you shortly.</p>
                   <Button onClick={() => setSuccess(false)} variant="outline" className="mt-6">
                     Submit Another Application
                   </Button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
@@ -147,13 +158,13 @@ export default function CareersPage() {
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         required
                       />
-                      <Upload className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                      <Upload className="h-8 w-8 text-black mx-auto mb-2" />
                       {fileName ? (
                         <p className="text-sm font-medium text-blue-600">{fileName}</p>
                       ) : (
                         <>
-                          <p className="text-sm font-medium text-slate-700">Click to upload or drag and drop</p>
-                          <p className="text-xs text-slate-400 mt-1">PDF, DOC up to 5MB</p>
+                          <p className="text-sm font-medium text-black">Click to upload or drag and drop</p>
+                          <p className="text-xs text-black mt-1">PDF, DOC up to 5MB</p>
                         </>
                       )}
                     </div>
@@ -169,6 +180,16 @@ export default function CareersPage() {
         </div>
 
       </div>
+      {/* 4. FOOTER */}
+      <footer className="bg-slate-900 text-white py-12">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Sunflag Global Hospital Rohtak</h2>
+          <p className="mb-6">Providing care, hope, and excellence since 2014.</p>
+          <div className="text-sm text-white">
+            © 2026 Sunflag Hospital. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

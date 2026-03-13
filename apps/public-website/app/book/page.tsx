@@ -27,7 +27,7 @@ export default function BookAppointmentPage() {
 
   // Fetch Doctors
   useEffect(() => {
-    fetch("https://sunflag-hms.onrender.com/users/public/doctors")
+    fetch("https://sunflagglobalhospital.com/users/public/doctors")
       .then((res) => res.json())
       .then((data) => setDoctors(data))
       .catch((err) => console.error("Failed to load doctors", err));
@@ -56,7 +56,7 @@ export default function BookAppointmentPage() {
 
       console.log("📤 Sending Data:", payload);
 
-      const res = await fetch("https://sunflag-hms.onrender.com/appointments/public", {
+      const res = await fetch("https://sunflagglobalhospital.com/appointments/public", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -68,7 +68,7 @@ export default function BookAppointmentPage() {
       }
 
       setSuccess(true);
-      
+
     } catch (err: any) {
       console.error("❌ Booking Error:", err);
       setError(err.message);
@@ -78,44 +78,44 @@ export default function BookAppointmentPage() {
     }
   };
 
-    // 5. Success View
-    // 5. Success View (Updated Date Format)
-      if (success) {
-        // Convert YYYY-MM-DD to DD-MM-YYYY for display
-        const formattedDate = dateInput.split('-').reverse().join('-');
+  // 5. Success View
+  // 5. Success View (Updated Date Format)
+  if (success) {
+    // Convert YYYY-MM-DD to DD-MM-YYYY for display
+    const formattedDate = dateInput.split('-').reverse().join('-');
 
-        return (
-          <div className="flex flex-col items-center justify-center min-h-screen bg-green-50 p-4">
-            <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">✅</span>
-              </div>
-              
-              <h2 className="text-xl font-bold text-gray-800 mb-2">
-                You will get confirmation soon on your mobile number.
-              </h2>
-              
-              <p className="text-gray-600 mb-6 text-sm">
-                Thank you for booking with us. Your appointment for <strong>{timeSlot}</strong> on <strong>{formattedDate}</strong> has been received.
-              </p>
-              
-              <button
-                onClick={() => window.location.href = "/"} // Redirect to Home
-                className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Home
-              </button>
-            </div>
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-green-50 p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">✅</span>
           </div>
-        );
-      }
+
+          <h2 className="text-xl font-bold text-black mb-2">
+            You will get confirmation soon on your mobile number.
+          </h2>
+
+          <p className="text-black mb-6 text-sm">
+            Thank you for booking with us. Your appointment for <strong>{timeSlot}</strong> on <strong>{formattedDate}</strong> has been received.
+          </p>
+
+          <button
+            onClick={() => window.location.href = "/"} // Redirect to Home
+            className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-gray-900">Book Appointment</h2>
-          <p className="mt-2 text-gray-600">Schedule a visit with our specialists</p>
+          <h2 className="text-3xl font-extrabold text-black">Book Appointment</h2>
+          <p className="mt-2 text-black">Schedule a visit with our specialists</p>
         </div>
 
         {error && (
@@ -127,7 +127,7 @@ export default function BookAppointmentPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Patient Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Full Name</label>
+            <label className="block text-sm font-medium text-black">Full Name</label>
             <input
               name="patientName"
               required
@@ -139,7 +139,7 @@ export default function BookAppointmentPage() {
 
           {/* Phone */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+            <label className="block text-sm font-medium text-black">Phone Number</label>
             <input
               name="patientPhone"
               required
@@ -151,7 +151,7 @@ export default function BookAppointmentPage() {
 
           {/* NEW: Date Picker (Defaults to Today) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Preferred Date</label>
+            <label className="block text-sm font-medium text-black">Preferred Date</label>
             <input
               type="date"
               required
@@ -163,28 +163,26 @@ export default function BookAppointmentPage() {
 
           {/* NEW: Time Slot Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Time</label>
+            <label className="block text-sm font-medium text-black mb-2">Preferred Time</label>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => setTimeSlot("Morning")}
-                className={`p-3 text-center rounded-lg border ${
-                  timeSlot === "Morning" 
-                    ? "bg-blue-50 border-blue-500 text-blue-700 ring-2 ring-blue-200" 
+                className={`p-3 text-center rounded-lg border ${timeSlot === "Morning"
+                    ? "bg-blue-50 border-blue-500 text-blue-700 ring-2 ring-blue-200"
                     : "border-gray-300 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 ☀️ Morning (10 AM)
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => setTimeSlot("Evening")}
-                className={`p-3 text-center rounded-lg border ${
-                  timeSlot === "Evening" 
-                    ? "bg-indigo-50 border-indigo-500 text-indigo-700 ring-2 ring-indigo-200" 
+                className={`p-3 text-center rounded-lg border ${timeSlot === "Evening"
+                    ? "bg-indigo-50 border-indigo-500 text-indigo-700 ring-2 ring-indigo-200"
                     : "border-gray-300 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 🌙 Evening (5 PM)
               </button>
@@ -193,7 +191,7 @@ export default function BookAppointmentPage() {
 
           {/* Doctor Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Select Doctor</label>
+            <label className="block text-sm font-medium text-black">Select Doctor</label>
             <select
               name="doctorId"
               required
@@ -203,7 +201,7 @@ export default function BookAppointmentPage() {
               <option value="">-- Choose a Doctor --</option>
               {doctors.map((doc) => (
                 <option key={doc.id} value={doc.id}>
-                {doc.fullName} ({doc.doctorProfile?.specialization || "General"})
+                  {doc.fullName} ({doc.doctorProfile?.specialization || "General"})
                 </option>
               ))}
             </select>
@@ -211,7 +209,7 @@ export default function BookAppointmentPage() {
 
           {/* Reason */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Reason for Visit</label>
+            <label className="block text-sm font-medium text-black">Reason for Visit</label>
             <textarea
               name="reason"
               rows={3}

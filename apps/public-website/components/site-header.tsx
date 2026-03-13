@@ -35,7 +35,7 @@ export function SiteHeader() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex gap-6 text-sm font-medium text-slate-600">
+        <nav className="hidden lg:flex gap-6 text-sm font-medium text-black">
           {navLinks.map((link) => (
             <Link key={link.name} href={link.href} className="hover:text-blue-600 transition-colors">
               {link.name}
@@ -45,7 +45,7 @@ export function SiteHeader() {
 
         {/* Action Button & Mobile Toggle */}
         <div className="flex items-center gap-4">
-          
+
           {/* Emergency Number */}
           <div className="hidden xl:flex items-center gap-2 text-red-800 font-bold mr-2">
             <Phone className="h-4 w-4 fill-current" />
@@ -63,7 +63,7 @@ export function SiteHeader() {
               Book Appointment
             </Button>
           </Link>
-          
+
           <Button variant="ghost" className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
             <Menu className="h-6 w-6" />
           </Button>
@@ -74,22 +74,22 @@ export function SiteHeader() {
       {isOpen && (
         <div className="lg:hidden border-t bg-white p-4 space-y-3 shadow-lg absolute w-full left-0">
           {navLinks.map((link) => (
-            <Link key={link.name} href={link.href} className="block text-sm font-medium text-slate-700 py-2 border-b border-slate-100 last:border-0">
+            <Link key={link.name} href={link.href} className="block text-sm font-medium text-black py-2 border-b border-slate-100 last:border-0">
               {link.name}
             </Link>
           ))}
-          
+
           <div className="pt-2 text-red-600 font-bold flex items-center gap-2 pb-2">
-             <Phone className="h-4 w-4" /> <span>Emergency: 98765-43210</span>
+            <Phone className="h-4 w-4" /> <span>Emergency: 98765-43210</span>
           </div>
 
           <Link href="/book" className="block pt-2">
-             <Button className="w-full bg-blue-600 text-white">Book Appointment</Button>
+            <Button className="w-full bg-blue-600 text-white">Book Appointment</Button>
           </Link>
 
           {/* Mobile Staff Login Button */}
-          <Link href={ADMIN_URL} target="_blank" className="flex items-center justify-center gap-2 w-full py-3 text-slate-600 hover:text-blue-600 text-sm mt-2 bg-slate-100 rounded-md font-medium">
-             <LayoutDashboard className="h-4 w-4" /> Go to Staff Dashboard
+          <Link href={ADMIN_URL} target="_blank" className="flex items-center justify-center gap-2 w-full py-3 text-black hover:text-blue-600 text-sm mt-2 bg-slate-100 rounded-md font-medium">
+            <LayoutDashboard className="h-4 w-4" /> Go to Staff Dashboard
           </Link>
         </div>
       )}
