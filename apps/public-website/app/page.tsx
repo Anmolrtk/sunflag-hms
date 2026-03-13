@@ -153,7 +153,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-pink-200 transition-colors">
                 <Ear className="h-8 w-8 text-pink-600" />
               </div>
-              <h3 className="font-bold text-black-950 text-lg mb-2">ENT</h3>
+              <h3 className="font-bold text-black-600 text-lg mb-2">ENT</h3>
             </div>
 
             {/* Neurology */}
@@ -161,7 +161,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
                 <Brain className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="font-bold text-black-950 text-lg mb-2">Neurology</h3>
+              <h3 className="font-bold text-black-600 text-lg mb-2">Neurology</h3>
             </div>
 
             {/* Orthopedics */}
@@ -169,7 +169,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-yellow-200 transition-colors">
                 <Bone className="h-8 w-8 text-yellow-600" />
               </div>
-              <h3 className="font-bold text-black-950 text-lg mb-2">Orthopedics</h3>
+              <h3 className="font-bold text-black-600 text-lg mb-2">Orthopedics</h3>
             </div>
 
             {/* General Medicine */}
