@@ -104,7 +104,7 @@ export default function Home() {
             <Card className="border-t-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader>
                 <Stethoscope className="h-10 w-10 text-blue-600 mb-2" />
-                <CardTitle>Expert Doctors</CardTitle>
+                <CardTitle className="text-blue-600">Expert Doctors</CardTitle>
               </CardHeader>
               <CardContent className="text-black">
                 Our team includes over 12+ specialists and super-specialists from top medical institutions.
@@ -114,7 +114,7 @@ export default function Home() {
             <Card className="border-t-4 border-green-500 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader>
                 <Clock className="h-10 w-10 text-black-950 mb-2" />
-                <CardTitle>24/7 Emergency</CardTitle>
+                <CardTitle className="text-blue-600">24/7 Emergency</CardTitle>
               </CardHeader>
               <CardContent className="text-black">
                 Round-the-clock emergency services with fully equipped advanced life support ambulances.
@@ -124,7 +124,7 @@ export default function Home() {
             <Card className="border-t-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader>
                 <ShieldCheck className="h-10 w-10 text-purple-600 mb-2" />
-                <CardTitle>Modern Technology</CardTitle>
+                <CardTitle className="text-blue-600">Modern Technology</CardTitle>
               </CardHeader>
               <CardContent className="text-black">
                 Equipped with the latest diagnostic and surgical technology for precise treatment.
